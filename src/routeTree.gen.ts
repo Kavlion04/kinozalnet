@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as AddRouteImport } from './routes/add'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MovieIdRouteImport } from './routes/movie.$id'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FavoritesRoute = FavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/add': typeof AddRoute
   '/favorites': typeof FavoritesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/movie/$id': typeof MovieIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/add': typeof AddRoute
   '/favorites': typeof FavoritesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/movie/$id': typeof MovieIdRoute
 }
 export interface FileRoutesById {
@@ -52,25 +60,34 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/add': typeof AddRoute
   '/favorites': typeof FavoritesRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/movie/$id': typeof MovieIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/add' | '/favorites' | '/movie/$id'
+  fullPaths: '/' | '/add' | '/favorites' | '/sitemap.xml' | '/movie/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/add' | '/favorites' | '/movie/$id'
-  id: '__root__' | '/' | '/add' | '/favorites' | '/movie/$id'
+  to: '/' | '/add' | '/favorites' | '/sitemap.xml' | '/movie/$id'
+  id: '__root__' | '/' | '/add' | '/favorites' | '/sitemap.xml' | '/movie/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AddRoute: typeof AddRoute
   FavoritesRoute: typeof FavoritesRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   MovieIdRoute: typeof MovieIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/favorites': {
       id: '/favorites'
       path: '/favorites'
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AddRoute: AddRoute,
   FavoritesRoute: FavoritesRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   MovieIdRoute: MovieIdRoute,
 }
 export const routeTree = rootRouteImport
