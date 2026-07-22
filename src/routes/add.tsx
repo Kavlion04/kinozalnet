@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useMutation, useQueryClient, useServerFn } from "@tanstack/react-query";
-import { useServerFn as useSFn } from "@tanstack/react-start";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { addMovie } from "@/lib/movies.functions";
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/add")({
 function AddPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const add = useSFn(addMovie);
+  const add = useServerFn(addMovie);
   const [form, setForm] = useState({
     title: "",
     original_title: "",
