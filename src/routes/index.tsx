@@ -42,8 +42,8 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Kinozal — Kinolar katalogi, treyler va sevimlilar" },
       { name: "description", content: "Kinolarni qidiring, janrlar bo'yicha filtrlang, treylerlarni ko'ring va sevimli filmlar ro'yxatini yarating." },
-      { property: "og:title", content: "Kinozal — Kinolar katalogi" },
-      { property: "og:description", content: "Filmlar, treylerlar va sevimlilar bir joyda." },
+      { property: "og:title", content: "Kinozal — Kinolar katalogi, treyler va sevimlilar" },
+      { property: "og:description", content: "Kinolarni qidiring, janrlar bo'yicha filtrlang, treylerlarni ko'ring va sevimli filmlar ro'yxatini yarating." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
