@@ -62,8 +62,8 @@ function Home() {
   const featured = movies[0];
   const years = Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i);
 
-  const update = (patch: Partial<typeof search>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch }) });
+  const update = (patch: Partial<z.infer<typeof searchSchema>>) =>
+    navigate({ search: (prev: z.infer<typeof searchSchema>) => ({ ...prev, ...patch }) });
 
   return (
     <div className="min-h-screen bg-background">
