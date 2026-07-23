@@ -6,21 +6,30 @@ import { z } from "zod";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
-import { listMovies, listGenres, type MovieDTO } from "@/lib/movies.functions";
+import { HeroCarousel } from "@/components/HeroCarousel";
+import { MovieRow } from "@/components/MovieRow";
+import { listMovies, listGenres, MOVIE_TYPES, type MovieDTO } from "@/lib/movies.functions";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
   genre: fallback(z.string(), "").default(""),
+  type: fallback(z.string(), "").default(""),
   year: fallback(z.number().int(), 0).default(0),
   sort: fallback(z.string(), "rating").default("rating"),
 });
 
-const moviesQO = (deps: { q: string; genre: string; year: number; sort: string }) =>
+const moviesQO = (deps: { q: string; genre: string; type: string; year: number; sort: string }) =>
   queryOptions({
     queryKey: ["movies", deps],
     queryFn: () =>
       listMovies({
-        data: { q: deps.q, genre: deps.genre, year: deps.year || undefined, sort: deps.sort },
+        data: {
+          q: deps.q,
+          genre: deps.genre,
+          type: deps.type,
+          year: deps.year || undefined,
+          sort: deps.sort,
+        },
       }) as Promise<MovieDTO[]>,
   });
 
@@ -31,7 +40,7 @@ const genresQO = queryOptions({
 
 export const Route = createFileRoute("/")({
   validateSearch: zodValidator(searchSchema),
-  loaderDeps: ({ search: { q, genre, year, sort } }) => ({ q, genre, year, sort }),
+  loaderDeps: ({ search: { q, genre, type, year, sort } }) => ({ q, genre, type, year, sort }),
   loader: async ({ context, deps }) => {
     await Promise.all([
       context.queryClient.ensureQueryData(moviesQO(deps)),
@@ -40,10 +49,10 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "Kinozal — Kinolar katalogi, treyler va sevimlilar" },
-      { name: "description", content: "Kinolarni qidiring, janrlar bo'yicha filtrlang, treylerlarni ko'ring va sevimli filmlar ro'yxatini yarating." },
-      { property: "og:title", content: "Kinozal — Kinolar katalogi, treyler va sevimlilar" },
-      { property: "og:description", content: "Kinolarni qidiring, janrlar bo'yicha filtrlang, treylerlarni ko'ring va sevimli filmlar ro'yxatini yarating." },
+      { title: "Kinozal — Kinolar, Anime, K-Drama va Multfilmlar" },
+      { name: "description", content: "Kinolarni qidiring, tur va janr bo'yicha filtrlang, to'liq video tomosha qiling, izoh yozing va sevimlilarga saqlang." },
+      { property: "og:title", content: "Kinozal — Kinolar, Anime, K-Drama va Multfilmlar" },
+      { property: "og:description", content: "Kinolarni qidiring, tur va janr bo'yicha filtrlang, to'liq video tomosha qiling va sevimlilarga saqlang." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -59,8 +68,11 @@ function Home() {
   const { data: movies } = useSuspenseQuery(moviesQO(search));
   const { data: genres } = useSuspenseQuery(genresQO);
 
-  const featured = movies[0];
   const years = Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i);
+  const filtering = !!(search.q || search.genre || search.type || search.year);
+
+  const heroPool = [...movies].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+  const byType = (t: string) => movies.filter((m) => m.type === t);
 
   const update = (patch: Partial<z.infer<typeof searchSchema>>) =>
     navigate({ search: (prev: z.infer<typeof searchSchema>) => ({ ...prev, ...patch }) });
@@ -69,36 +81,22 @@ function Home() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {featured && (
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0">
-            {featured.backdrop_url && (
-              <img src={featured.backdrop_url} alt="" className="h-full w-full object-cover opacity-40" />
-            )}
-            <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-          </div>
-          <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Bugungi tavsiya</p>
-            <h1 className="mt-3 max-w-2xl text-5xl leading-none sm:text-7xl">{featured.title}</h1>
-            <p className="mt-4 max-w-xl text-sm text-muted-foreground sm:text-base line-clamp-3">
-              {featured.description}
-            </p>
-            <div className="mt-6 flex items-center gap-3">
-              <a
-                href={`/movie/${featured.id}`}
-                className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition hover:opacity-90"
-              >
-                ▶ Treylerni ko'rish
-              </a>
-              <span className="text-sm text-muted-foreground">
-                {featured.year} • {featured.duration_minutes} daq
-              </span>
-            </div>
-          </div>
-        </section>
-      )}
+      <HeroCarousel movies={heroPool} />
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
+        <div className="flex flex-wrap gap-2">
+          <TypeChip active={search.type === ""} onClick={() => update({ type: "" })}>
+            Barchasi
+          </TypeChip>
+          {MOVIE_TYPES.map((t) => (
+            <TypeChip key={t} active={search.type === t} onClick={() => update({ type: t })}>
+              {t}
+            </TypeChip>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <div className="relative flex-1">
@@ -111,7 +109,7 @@ function Home() {
                 className="w-full rounded-lg border border-input bg-background py-2.5 pl-10 pr-3 text-sm outline-none focus:border-primary"
               />
             </div>
-            <div className="flex items-center gap-2 text-sm">
+            <div className="flex flex-wrap items-center gap-2 text-sm">
               <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
               <select
                 value={search.genre}
@@ -147,23 +145,55 @@ function Home() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
-        <div className="mb-4 flex items-baseline justify-between">
-          <h2 className="text-2xl">Barcha kinolar</h2>
-          <span className="text-sm text-muted-foreground">{movies.length} ta film</span>
+      {filtering ? (
+        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6">
+          <div className="mb-4 flex items-baseline justify-between">
+            <h2 className="text-2xl">Natijalar</h2>
+            <span className="text-sm text-muted-foreground">{movies.length} ta</span>
+          </div>
+          {movies.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
+              Bu filtr bo'yicha kino topilmadi.
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-6">
+              {movies.map((m) => (
+                <MovieCard key={m.id} movie={m} />
+              ))}
+            </div>
+          )}
+        </section>
+      ) : (
+        <div className="pb-16">
+          {MOVIE_TYPES.map((t) => (
+            <MovieRow key={t} title={t} movies={byType(t)} />
+          ))}
         </div>
-        {movies.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
-            Bu filtr bo'yicha kino topilmadi.
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-6">
-            {movies.map((m) => (
-              <MovieCard key={m.id} movie={m} />
-            ))}
-          </div>
-        )}
-      </section>
+      )}
     </div>
+  );
+}
+
+function TypeChip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-4 py-1.5 text-sm transition ${
+        active
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-card text-foreground hover:bg-accent"
+      }`}
+    >
+      {children}
+    </button>
   );
 }
