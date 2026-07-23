@@ -14,12 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          movie_id: string
+          nickname: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          movie_id: string
+          nickname: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          movie_id?: string
+          nickname?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_movie_id_fkey"
+            columns: ["movie_id"]
+            isOneToOne: false
+            referencedRelation: "movies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       movies: {
         Row: {
           backdrop_url: string | null
           created_at: string
           description: string | null
           duration_minutes: number | null
+          full_youtube_id: string | null
           genre: string[]
           id: string
           original_title: string | null
@@ -27,6 +60,7 @@ export type Database = {
           rating: number | null
           title: string
           trailer_youtube_id: string | null
+          type: string
           year: number | null
         }
         Insert: {
@@ -34,6 +68,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
+          full_youtube_id?: string | null
           genre?: string[]
           id?: string
           original_title?: string | null
@@ -41,6 +76,7 @@ export type Database = {
           rating?: number | null
           title: string
           trailer_youtube_id?: string | null
+          type?: string
           year?: number | null
         }
         Update: {
@@ -48,6 +84,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
+          full_youtube_id?: string | null
           genre?: string[]
           id?: string
           original_title?: string | null
@@ -55,6 +92,7 @@ export type Database = {
           rating?: number | null
           title?: string
           trailer_youtube_id?: string | null
+          type?: string
           year?: number | null
         }
         Relationships: []

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
-import { addMovie } from "@/lib/movies.functions";
+import { addMovie, MOVIE_TYPES } from "@/lib/movies.functions";
 
 export const Route = createFileRoute("/add")({
   head: () => ({
@@ -29,9 +29,11 @@ function AddPage() {
     description: "",
     year: "",
     genre: "",
+    type: "Film",
     poster_url: "",
     backdrop_url: "",
     trailer_youtube_id: "",
+    full_youtube_id: "",
     rating: "",
     duration_minutes: "",
   });
@@ -48,9 +50,11 @@ function AddPage() {
           .split(",")
           .map((s) => s.trim())
           .filter(Boolean),
+        type: form.type,
         poster_url: form.poster_url.trim() || null,
         backdrop_url: form.backdrop_url.trim() || null,
         trailer_youtube_id: form.trailer_youtube_id.trim() || null,
+        full_youtube_id: form.full_youtube_id.trim() || null,
         rating: form.rating ? Number(form.rating) : null,
         duration_minutes: form.duration_minutes ? Number(form.duration_minutes) : null,
       };
@@ -107,11 +111,25 @@ function AddPage() {
             <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Tavsif</label>
             <textarea rows={4} {...field("description")} />
           </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-              Janrlar (vergul bilan)
-            </label>
-            <input placeholder="Drama, Triller, Ekshn" {...field("genre")} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Janrlar (vergul bilan)
+              </label>
+              <input placeholder="Drama, Triller, Ekshn" {...field("genre")} />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Turi</label>
+              <select
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
+              >
+                {MOVIE_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
@@ -123,13 +141,21 @@ function AddPage() {
               <input {...field("backdrop_url")} />
             </div>
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 YouTube ID (treyler)
               </label>
               <input placeholder="dQw4w9WgXcQ" {...field("trailer_youtube_id")} />
             </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                YouTube ID (to'liq video)
+              </label>
+              <input placeholder="dQw4w9WgXcQ" {...field("full_youtube_id")} />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Reyting 0-10</label>
               <input type="number" step="0.1" min="0" max="10" {...field("rating")} />

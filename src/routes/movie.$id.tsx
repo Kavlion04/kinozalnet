@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { ArrowLeft, Clock, Heart, Star } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
+import { Comments } from "@/components/Comments";
 import { getMovie, type MovieDTO } from "@/lib/movies.functions";
 import { useFavorites } from "@/lib/favorites";
 
@@ -130,7 +131,22 @@ function MoviePage() {
             </div>
           </div>
 
-          {movie.trailer_youtube_id && (
+          {movie.full_youtube_id && (
+            <div className="mt-12">
+              <h2 className="mb-4 text-2xl">Tomosha qilish</h2>
+              <div className="relative aspect-video overflow-hidden rounded-2xl bg-black shadow-[var(--shadow-poster)]">
+                <iframe
+                  src={`https://www.youtube.com/embed/${movie.full_youtube_id}`}
+                  title={`${movie.title} — to'liq video`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+                  allowFullScreen
+                  className="absolute inset-0 h-full w-full"
+                />
+              </div>
+            </div>
+          )}
+
+          {movie.trailer_youtube_id && movie.trailer_youtube_id !== movie.full_youtube_id && (
             <div className="mt-12">
               <h2 className="mb-4 text-2xl">Treyler</h2>
               <div className="relative aspect-video overflow-hidden rounded-2xl bg-black shadow-[var(--shadow-poster)]">
@@ -144,6 +160,8 @@ function MoviePage() {
               </div>
             </div>
           )}
+
+          <Comments movieId={movie.id} />
 
           <div className="h-16" />
         </div>
