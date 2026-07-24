@@ -88,6 +88,16 @@ export const listMovies = createServerFn({ method: "GET" })
     return (rows ?? []).map(rowToDto);
   });
 
+export const listMoviesByIds = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => z.object({ ids: z.array(z.string()).max(50) }).parse(input))
+  .handler(async ({ data }): Promise<MovieDTO[]> => {
+    if (data.ids.length === 0) return [];
+    const sb = serverClient();
+    const { data: rows, error } = await sb.from("movies").select("*").in("id", data.ids);
+    if (error) throw new Error(error.message);
+    return (rows ?? []).map(rowToDto);
+  });
+
 export const getMovie = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ id: z.string() }).parse(input))
   .handler(async ({ data }): Promise<MovieDTO | null> => {

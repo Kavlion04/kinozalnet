@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -8,7 +8,8 @@ import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { MovieRow } from "@/components/MovieRow";
-import { listMovies, listGenres, MOVIE_TYPES, type MovieDTO } from "@/lib/movies.functions";
+import { listMovies, listGenres, listMoviesByIds, MOVIE_TYPES, type MovieDTO } from "@/lib/movies.functions";
+import { useWatchProgress, useRecent } from "@/lib/watch-progress";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
@@ -165,12 +166,43 @@ function Home() {
         </section>
       ) : (
         <div className="pb-16">
+          <PersonalRows />
           {MOVIE_TYPES.map((t) => (
             <MovieRow key={t} title={t} movies={byType(t)} />
           ))}
         </div>
       )}
     </div>
+  );
+}
+
+function PersonalRows() {
+  const progress = useWatchProgress();
+  const recent = useRecent();
+
+  const progressIds = progress.map((p) => p.movieId);
+  const idSet = new Set(progressIds);
+  const recentOnly = recent.filter((id) => !idSet.has(id));
+
+  const allIds = Array.from(new Set([...progressIds, ...recentOnly])).slice(0, 40);
+
+  const { data } = useQuery({
+    queryKey: ["by-ids", allIds],
+    queryFn: () => listMoviesByIds({ data: { ids: allIds } }) as Promise<MovieDTO[]>,
+    enabled: allIds.length > 0,
+  });
+
+  if (!data || data.length === 0) return null;
+  const map = new Map(data.map((m) => [m.id, m]));
+
+  const continueMovies = progressIds.map((id) => map.get(id)).filter(Boolean) as MovieDTO[];
+  const recentMovies = recentOnly.map((id) => map.get(id)).filter(Boolean) as MovieDTO[];
+
+  return (
+    <>
+      {continueMovies.length > 0 && <MovieRow title="Davom eting" movies={continueMovies} />}
+      {recentMovies.length > 0 && <MovieRow title="Yaqinda ko'rilgan" movies={recentMovies} />}
+    </>
   );
 }
 

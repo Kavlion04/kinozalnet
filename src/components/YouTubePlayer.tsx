@@ -76,6 +76,7 @@ export function YouTubePlayer({ videoId, title, storageId }: Props) {
                   const t = p.getCurrentTime();
                   if (Number.isFinite(t) && t > 0) {
                     localStorage.setItem(key, String(t));
+                    window.dispatchEvent(new Event("watch-progress-changed"));
                   }
                 }
               } catch {}

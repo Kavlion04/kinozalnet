@@ -1,11 +1,15 @@
+import { useEffect } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { ArrowLeft, Clock, Heart, Star } from "lucide-react";
+import { ArrowLeft, Clock, Heart, Share2, Star } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Comments } from "@/components/Comments";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
+import { StarRating } from "@/components/StarRating";
+import { SimilarMovies } from "@/components/SimilarMovies";
 import { getMovie, type MovieDTO } from "@/lib/movies.functions";
 import { useFavorites } from "@/lib/favorites";
+import { pushRecent } from "@/lib/watch-progress";
 
 const movieQO = (id: string) =>
   queryOptions({
@@ -52,8 +56,19 @@ function MoviePage() {
   const { id } = Route.useParams();
   const { data: movie } = useSuspenseQuery(movieQO(id));
   const { has, toggle } = useFavorites();
+  useEffect(() => {
+    if (movie) pushRecent(movie.id);
+  }, [movie?.id]);
   if (!movie) return null;
   const fav = has(movie.id);
+
+  const share = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      if (navigator.share) await navigator.share({ title: movie.title, url });
+      else await navigator.clipboard.writeText(url);
+    } catch {}
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -118,17 +133,27 @@ function MoviePage() {
                 {movie.description}
               </p>
 
-              <button
-                onClick={() => toggle(movie.id)}
-                className={`mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
-                  fav
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-border bg-secondary text-foreground hover:bg-accent"
-                }`}
-              >
-                <Heart className={`h-4 w-4 ${fav ? "fill-primary-foreground" : ""}`} />
-                {fav ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}
-              </button>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <button
+                  onClick={() => toggle(movie.id)}
+                  className={`inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
+                    fav
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-secondary text-foreground hover:bg-accent"
+                  }`}
+                >
+                  <Heart className={`h-4 w-4 ${fav ? "fill-primary-foreground" : ""}`} />
+                  {fav ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}
+                </button>
+                <button
+                  onClick={share}
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-5 py-2.5 text-sm font-semibold hover:bg-accent"
+                >
+                  <Share2 className="h-4 w-4" /> Ulashish
+                </button>
+              </div>
+
+              <StarRating movieId={movie.id} />
             </div>
           </div>
 
@@ -153,6 +178,8 @@ function MoviePage() {
               />
             </div>
           )}
+
+          <SimilarMovies movie={movie} />
 
           <Comments movieId={movie.id} />
 
