@@ -133,17 +133,27 @@ function MoviePage() {
                 {movie.description}
               </p>
 
-              <button
-                onClick={() => toggle(movie.id)}
-                className={`mt-6 inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
-                  fav
-                    ? "bg-primary text-primary-foreground"
-                    : "border border-border bg-secondary text-foreground hover:bg-accent"
-                }`}
-              >
-                <Heart className={`h-4 w-4 ${fav ? "fill-primary-foreground" : ""}`} />
-                {fav ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}
-              </button>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <button
+                  onClick={() => toggle(movie.id)}
+                  className={`inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold transition ${
+                    fav
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-secondary text-foreground hover:bg-accent"
+                  }`}
+                >
+                  <Heart className={`h-4 w-4 ${fav ? "fill-primary-foreground" : ""}`} />
+                  {fav ? "Sevimlilardan olib tashlash" : "Sevimlilarga qo'shish"}
+                </button>
+                <button
+                  onClick={share}
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-5 py-2.5 text-sm font-semibold hover:bg-accent"
+                >
+                  <Share2 className="h-4 w-4" /> Ulashish
+                </button>
+              </div>
+
+              <StarRating movieId={movie.id} />
             </div>
           </div>
 
