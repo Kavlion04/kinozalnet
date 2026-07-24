@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
@@ -8,7 +8,8 @@ import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { MovieRow } from "@/components/MovieRow";
-import { listMovies, listGenres, MOVIE_TYPES, type MovieDTO } from "@/lib/movies.functions";
+import { listMovies, listGenres, listMoviesByIds, MOVIE_TYPES, type MovieDTO } from "@/lib/movies.functions";
+import { useWatchProgress, useRecent } from "@/lib/watch-progress";
 
 const searchSchema = z.object({
   q: fallback(z.string(), "").default(""),
