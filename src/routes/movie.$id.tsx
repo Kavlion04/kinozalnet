@@ -3,6 +3,7 @@ import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { ArrowLeft, Clock, Heart, Star } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Comments } from "@/components/Comments";
+import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { getMovie, type MovieDTO } from "@/lib/movies.functions";
 import { useFavorites } from "@/lib/favorites";
 
