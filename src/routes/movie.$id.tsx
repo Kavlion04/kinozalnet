@@ -56,8 +56,19 @@ function MoviePage() {
   const { id } = Route.useParams();
   const { data: movie } = useSuspenseQuery(movieQO(id));
   const { has, toggle } = useFavorites();
+  useEffect(() => {
+    if (movie) pushRecent(movie.id);
+  }, [movie?.id]);
   if (!movie) return null;
   const fav = has(movie.id);
+
+  const share = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      if (navigator.share) await navigator.share({ title: movie.title, url });
+      else await navigator.clipboard.writeText(url);
+    } catch {}
+  };
 
   return (
     <div className="min-h-screen bg-background">
