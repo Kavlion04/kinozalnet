@@ -1,11 +1,15 @@
+import { useEffect } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { ArrowLeft, Clock, Heart, Star } from "lucide-react";
+import { ArrowLeft, Clock, Heart, Share2, Star } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Comments } from "@/components/Comments";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
+import { StarRating } from "@/components/StarRating";
+import { SimilarMovies } from "@/components/SimilarMovies";
 import { getMovie, type MovieDTO } from "@/lib/movies.functions";
 import { useFavorites } from "@/lib/favorites";
+import { pushRecent } from "@/lib/watch-progress";
 
 const movieQO = (id: string) =>
   queryOptions({
