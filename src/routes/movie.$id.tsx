@@ -179,6 +179,8 @@ function MoviePage() {
             </div>
           )}
 
+          <SimilarMovies movie={movie} />
+
           <Comments movieId={movie.id} />
 
           <div className="h-16" />
