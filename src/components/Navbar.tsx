@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Film, Heart, Plus } from "lucide-react";
+import { Film, Heart, ListMusic, Plus } from "lucide-react";
 
 export function Navbar() {
   return (
@@ -19,6 +19,14 @@ export function Navbar() {
           >
             <Heart className="h-4 w-4" />
             <span className="hidden sm:inline">Sevimli</span>
+          </Link>
+          <Link
+            to="/playlists"
+            className="flex items-center gap-1.5 rounded-md px-3 py-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+            activeProps={{ className: "text-foreground bg-secondary" }}
+          >
+            <ListMusic className="h-4 w-4" />
+            <span className="hidden sm:inline">To'plamlar</span>
           </Link>
           <Link
             to="/add"
