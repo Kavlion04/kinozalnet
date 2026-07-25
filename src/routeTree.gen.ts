@@ -10,14 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PlaylistsRouteImport } from './routes/playlists'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as AddRouteImport } from './routes/add'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlaylistsIdRouteImport } from './routes/playlists.$id'
 import { Route as MovieIdRouteImport } from './routes/movie.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaylistsRoute = PlaylistsRouteImport.update({
+  id: '/playlists',
+  path: '/playlists',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FavoritesRoute = FavoritesRouteImport.update({
@@ -35,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlaylistsIdRoute = PlaylistsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => PlaylistsRoute,
+} as any)
 const MovieIdRoute = MovieIdRouteImport.update({
   id: '/movie/$id',
   path: '/movie/$id',
@@ -45,36 +57,65 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/add': typeof AddRoute
   '/favorites': typeof FavoritesRoute
+  '/playlists': typeof PlaylistsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/movie/$id': typeof MovieIdRoute
+  '/playlists/$id': typeof PlaylistsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/add': typeof AddRoute
   '/favorites': typeof FavoritesRoute
+  '/playlists': typeof PlaylistsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/movie/$id': typeof MovieIdRoute
+  '/playlists/$id': typeof PlaylistsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/add': typeof AddRoute
   '/favorites': typeof FavoritesRoute
+  '/playlists': typeof PlaylistsRouteWithChildren
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/movie/$id': typeof MovieIdRoute
+  '/playlists/$id': typeof PlaylistsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/add' | '/favorites' | '/sitemap.xml' | '/movie/$id'
+  fullPaths:
+    | '/'
+    | '/add'
+    | '/favorites'
+    | '/playlists'
+    | '/sitemap.xml'
+    | '/movie/$id'
+    | '/playlists/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/add' | '/favorites' | '/sitemap.xml' | '/movie/$id'
-  id: '__root__' | '/' | '/add' | '/favorites' | '/sitemap.xml' | '/movie/$id'
+  to:
+    | '/'
+    | '/add'
+    | '/favorites'
+    | '/playlists'
+    | '/sitemap.xml'
+    | '/movie/$id'
+    | '/playlists/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/add'
+    | '/favorites'
+    | '/playlists'
+    | '/sitemap.xml'
+    | '/movie/$id'
+    | '/playlists/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AddRoute: typeof AddRoute
   FavoritesRoute: typeof FavoritesRoute
+  PlaylistsRoute: typeof PlaylistsRouteWithChildren
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   MovieIdRoute: typeof MovieIdRoute
 }
@@ -86,6 +127,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playlists': {
+      id: '/playlists'
+      path: '/playlists'
+      fullPath: '/playlists'
+      preLoaderRoute: typeof PlaylistsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/favorites': {
@@ -109,6 +157,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/playlists/$id': {
+      id: '/playlists/$id'
+      path: '/$id'
+      fullPath: '/playlists/$id'
+      preLoaderRoute: typeof PlaylistsIdRouteImport
+      parentRoute: typeof PlaylistsRoute
+    }
     '/movie/$id': {
       id: '/movie/$id'
       path: '/movie/$id'
@@ -119,10 +174,23 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface PlaylistsRouteChildren {
+  PlaylistsIdRoute: typeof PlaylistsIdRoute
+}
+
+const PlaylistsRouteChildren: PlaylistsRouteChildren = {
+  PlaylistsIdRoute: PlaylistsIdRoute,
+}
+
+const PlaylistsRouteWithChildren = PlaylistsRoute._addFileChildren(
+  PlaylistsRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AddRoute: AddRoute,
   FavoritesRoute: FavoritesRoute,
+  PlaylistsRoute: PlaylistsRouteWithChildren,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   MovieIdRoute: MovieIdRoute,
 }

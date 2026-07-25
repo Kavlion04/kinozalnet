@@ -7,6 +7,7 @@ import { Comments } from "@/components/Comments";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { StarRating } from "@/components/StarRating";
 import { SimilarMovies } from "@/components/SimilarMovies";
+import { AddToPlaylist } from "@/components/AddToPlaylist";
 import { getMovie, type MovieDTO } from "@/lib/movies.functions";
 import { useFavorites } from "@/lib/favorites";
 import { pushRecent } from "@/lib/watch-progress";
@@ -151,6 +152,7 @@ function MoviePage() {
                 >
                   <Share2 className="h-4 w-4" /> Ulashish
                 </button>
+                <AddToPlaylist movieId={movie.id} />
               </div>
 
               <StarRating movieId={movie.id} />

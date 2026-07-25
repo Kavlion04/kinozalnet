@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { MessageSquare } from "lucide-react";
+import { Flag, MessageSquare } from "lucide-react";
 import { listComments, addComment, type CommentDTO } from "@/lib/movies.functions";
+import { useHiddenComments } from "@/lib/playlists";
 
 export function Comments({ movieId }: { movieId: string }) {
   const qc = useQueryClient();
@@ -11,6 +12,8 @@ export function Comments({ movieId }: { movieId: string }) {
   const [nickname, setNickname] = useState("");
   const [body, setBody] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const { hidden, hide } = useHiddenComments();
+
 
   const { data: comments = [] } = useQuery({
     queryKey: ["comments", movieId],
@@ -75,17 +78,32 @@ export function Comments({ movieId }: { movieId: string }) {
       </form>
 
       <ul className="mt-6 space-y-3">
-        {comments.map((c) => (
-          <li key={c.id} className="rounded-xl border border-border bg-card/60 p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-semibold text-foreground">{c.nickname}</p>
-              <p className="text-xs text-muted-foreground">
-                {new Date(c.created_at).toLocaleString()}
-              </p>
-            </div>
-            <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{c.body}</p>
-          </li>
-        ))}
+        {comments
+          .filter((c) => !hidden.includes(c.id))
+          .map((c) => (
+            <li key={c.id} className="rounded-xl border border-border bg-card/60 p-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-semibold text-foreground">{c.nickname}</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(c.created_at).toLocaleString()}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm("Bu izohni yashirishni istaysizmi?")) hide(c.id);
+                    }}
+                    className="rounded-md p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                    aria-label="Shikoyat qilish"
+                    title="Shikoyat qilish / yashirish"
+                  >
+                    <Flag className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">{c.body}</p>
+            </li>
+          ))}
         {comments.length === 0 && (
           <li className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
             Hali izohlar yo'q. Birinchi bo'ling!
