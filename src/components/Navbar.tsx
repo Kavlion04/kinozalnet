@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Film, Heart, ListMusic, Plus } from "lucide-react";
+import { Film, Heart, ListMusic, Plus, ShieldCheck } from "lucide-react";
 
 export function Navbar() {
   return (
@@ -27,6 +27,15 @@ export function Navbar() {
           >
             <ListMusic className="h-4 w-4" />
             <span className="hidden sm:inline">To'plamlar</span>
+          </Link>
+          <Link
+            to="/admin"
+            className="flex items-center gap-1.5 rounded-md px-3 py-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+            activeProps={{ className: "text-foreground bg-secondary" }}
+            aria-label="Admin panel"
+          >
+            <ShieldCheck className="h-4 w-4" />
+            <span className="hidden sm:inline">Admin</span>
           </Link>
           <Link
             to="/add"
