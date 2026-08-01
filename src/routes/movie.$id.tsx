@@ -78,7 +78,13 @@ function MoviePage() {
       <div className="relative">
         {movie.backdrop_url && (
           <div className="absolute inset-x-0 top-0 h-[60vh] overflow-hidden">
-            <img src={movie.backdrop_url} alt="" className="h-full w-full object-cover opacity-30" />
+            <SafeImage
+              src={movie.backdrop_url}
+              alt=""
+              showIcon={false}
+              loading="eager"
+              className="h-full w-full object-cover opacity-30"
+            />
             <div className="absolute inset-0" style={{ background: "var(--gradient-fade)" }} />
           </div>
         )}
@@ -93,14 +99,17 @@ function MoviePage() {
 
           <div className="mt-6 grid gap-8 md:grid-cols-[280px_1fr]">
             <div className="mx-auto w-full max-w-[280px]">
-              {movie.poster_url && (
-                <img
+              <div className="aspect-[2/3] w-full overflow-hidden rounded-2xl shadow-[var(--shadow-poster)]">
+                <SafeImage
                   src={movie.poster_url}
                   alt={movie.title}
-                  className="w-full rounded-2xl shadow-[var(--shadow-poster)]"
+                  label={movie.title}
+                  loading="eager"
+                  className="h-full w-full object-cover"
                 />
-              )}
+              </div>
             </div>
+
 
             <div>
               <h1 className="text-4xl sm:text-6xl">{movie.title}</h1>
