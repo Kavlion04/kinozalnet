@@ -8,6 +8,8 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { StarRating } from "@/components/StarRating";
 import { SimilarMovies } from "@/components/SimilarMovies";
 import { AddToPlaylist } from "@/components/AddToPlaylist";
+import { SafeImage } from "@/components/SafeImage";
+
 import { getMovie, type MovieDTO } from "@/lib/movies.functions";
 import { useFavorites } from "@/lib/favorites";
 import { pushRecent } from "@/lib/watch-progress";
