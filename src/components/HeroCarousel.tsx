@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { MovieDTO } from "@/lib/movies.functions";
+import { SafeImage } from "@/components/SafeImage";
+
 
 export function HeroCarousel({ movies }: { movies: MovieDTO[] }) {
   const slides = movies.slice(0, 5);
