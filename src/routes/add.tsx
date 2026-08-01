@@ -41,6 +41,11 @@ function AddPage() {
 
   const mutation = useMutation({
     mutationFn: async () => {
+      const poster = normalizeImageUrl(form.poster_url);
+      const backdrop = normalizeImageUrl(form.backdrop_url);
+      if (poster === false) throw new Error("Poster URL to'g'ri rasm havolasi bo'lishi kerak (https://... .jpg/.png)");
+      if (backdrop === false) throw new Error("Backdrop URL to'g'ri rasm havolasi bo'lishi kerak (https://... .jpg/.png)");
+
       const payload = {
         title: form.title.trim(),
         original_title: form.original_title.trim() || null,
@@ -51,15 +56,16 @@ function AddPage() {
           .map((s) => s.trim())
           .filter(Boolean),
         type: form.type,
-        poster_url: form.poster_url.trim() || null,
-        backdrop_url: form.backdrop_url.trim() || null,
-        trailer_youtube_id: form.trailer_youtube_id.trim() || null,
-        full_youtube_id: form.full_youtube_id.trim() || null,
+        poster_url: poster,
+        backdrop_url: backdrop,
+        trailer_youtube_id: normalizeYouTubeId(form.trailer_youtube_id),
+        full_youtube_id: normalizeYouTubeId(form.full_youtube_id),
         rating: form.rating ? Number(form.rating) : null,
         duration_minutes: form.duration_minutes ? Number(form.duration_minutes) : null,
       };
       return add({ data: payload });
     },
+
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["movies"] });
       qc.invalidateQueries({ queryKey: ["genres"] });
