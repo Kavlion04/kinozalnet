@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, Star } from "lucide-react";
 import { useFavorites } from "@/lib/favorites";
+import { SafeImage } from "@/components/SafeImage";
+
 import type { MovieDTO } from "@/lib/movies.functions";
 
 export function MovieCard({ movie }: { movie: MovieDTO }) {
