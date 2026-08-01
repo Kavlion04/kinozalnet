@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import type { MovieDTO } from "@/lib/movies.functions";
+import { SafeImage } from "@/components/SafeImage";
+
 
 export function HeroCarousel({ movies }: { movies: MovieDTO[] }) {
   const slides = movies.slice(0, 5);
@@ -18,14 +20,15 @@ export function HeroCarousel({ movies }: { movies: MovieDTO[] }) {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0">
-        {m.backdrop_url && (
-          <img
-            key={m.id}
-            src={m.backdrop_url}
-            alt=""
-            className="h-full w-full object-cover opacity-40 transition-opacity duration-700"
-          />
-        )}
+        <SafeImage
+          key={m.id}
+          src={m.backdrop_url ?? m.poster_url}
+          alt=""
+          loading="eager"
+          showIcon={false}
+          className="h-full w-full object-cover opacity-40 transition-opacity duration-700"
+        />
+
         <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
       </div>
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">

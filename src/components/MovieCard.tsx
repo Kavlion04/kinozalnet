@@ -1,6 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { Heart, Star } from "lucide-react";
 import { useFavorites } from "@/lib/favorites";
+import { SafeImage } from "@/components/SafeImage";
+
 import type { MovieDTO } from "@/lib/movies.functions";
 
 export function MovieCard({ movie }: { movie: MovieDTO }) {
@@ -14,18 +16,13 @@ export function MovieCard({ movie }: { movie: MovieDTO }) {
         className="block overflow-hidden rounded-xl bg-card shadow-[var(--shadow-poster)] transition-transform duration-300 group-hover:-translate-y-1"
       >
         <div className="relative aspect-[2/3] overflow-hidden bg-muted">
-          {movie.poster_url ? (
-            <img
-              src={movie.poster_url}
-              alt={movie.title}
-              loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-muted-foreground text-xs px-3 text-center">
-              {movie.title}
-            </div>
-          )}
+          <SafeImage
+            src={movie.poster_url}
+            alt={movie.title}
+            label={movie.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
           {movie.rating != null && (
             <div className="absolute left-2 top-2 flex items-center gap-1 rounded-md bg-black/70 px-2 py-1 text-xs font-medium text-[var(--color-gold)] backdrop-blur">

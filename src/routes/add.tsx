@@ -4,6 +4,28 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { addMovie, MOVIE_TYPES } from "@/lib/movies.functions";
+import { SafeImage } from "@/components/SafeImage";
+
+/** Returns a clean URL, null when empty, or false when the value is not a usable image link. */
+function normalizeImageUrl(raw: string): string | null | false {
+  const v = raw.trim();
+  if (!v) return null;
+  if (!/^https?:\/\//i.test(v)) return false;
+  // Reject page links (search results, IMDb pages, share links) — they are not images.
+  if (/^https?:\/\/(www\.)?(google\.[a-z.]+|share\.google|imdb\.com|youtube\.com|pinterest\.)/i.test(v))
+    return false;
+  return v;
+}
+
+/** Accepts a bare ID or any YouTube URL and returns the 11-char video ID. */
+function normalizeYouTubeId(raw: string): string | null {
+  const v = raw.trim();
+  if (!v) return null;
+  if (/^[A-Za-z0-9_-]{11}$/.test(v)) return v;
+  const m = v.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : v;
+}
+
 
 export const Route = createFileRoute("/add")({
   head: () => ({
@@ -41,6 +63,11 @@ function AddPage() {
 
   const mutation = useMutation({
     mutationFn: async () => {
+      const poster = normalizeImageUrl(form.poster_url);
+      const backdrop = normalizeImageUrl(form.backdrop_url);
+      if (poster === false) throw new Error("Poster URL to'g'ri rasm havolasi bo'lishi kerak (https://... .jpg/.png)");
+      if (backdrop === false) throw new Error("Backdrop URL to'g'ri rasm havolasi bo'lishi kerak (https://... .jpg/.png)");
+
       const payload = {
         title: form.title.trim(),
         original_title: form.original_title.trim() || null,
@@ -51,15 +78,16 @@ function AddPage() {
           .map((s) => s.trim())
           .filter(Boolean),
         type: form.type,
-        poster_url: form.poster_url.trim() || null,
-        backdrop_url: form.backdrop_url.trim() || null,
-        trailer_youtube_id: form.trailer_youtube_id.trim() || null,
-        full_youtube_id: form.full_youtube_id.trim() || null,
+        poster_url: poster,
+        backdrop_url: backdrop,
+        trailer_youtube_id: normalizeYouTubeId(form.trailer_youtube_id),
+        full_youtube_id: normalizeYouTubeId(form.full_youtube_id),
         rating: form.rating ? Number(form.rating) : null,
         duration_minutes: form.duration_minutes ? Number(form.duration_minutes) : null,
       };
       return add({ data: payload });
     },
+
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["movies"] });
       qc.invalidateQueries({ queryKey: ["genres"] });
@@ -134,12 +162,23 @@ function AddPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Poster URL</label>
-              <input {...field("poster_url")} />
+              <input placeholder="https://.../poster.jpg" {...field("poster_url")} />
+              {form.poster_url.trim() && (
+                <div className="mt-2 h-28 w-20 overflow-hidden rounded-lg border border-border">
+                  <SafeImage
+                    src={form.poster_url}
+                    alt="Poster ko'rinishi"
+                    label="Havola ishlamadi"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Backdrop URL</label>
-              <input {...field("backdrop_url")} />
+              <input placeholder="https://.../backdrop.jpg" {...field("backdrop_url")} />
             </div>
+
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
