@@ -162,12 +162,23 @@ function AddPage() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Poster URL</label>
-              <input {...field("poster_url")} />
+              <input placeholder="https://.../poster.jpg" {...field("poster_url")} />
+              {form.poster_url.trim() && (
+                <div className="mt-2 h-28 w-20 overflow-hidden rounded-lg border border-border">
+                  <SafeImage
+                    src={form.poster_url}
+                    alt="Poster ko'rinishi"
+                    label="Havola ishlamadi"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Backdrop URL</label>
-              <input {...field("backdrop_url")} />
+              <input placeholder="https://.../backdrop.jpg" {...field("backdrop_url")} />
             </div>
+
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
