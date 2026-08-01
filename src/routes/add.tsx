@@ -4,6 +4,28 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { addMovie, MOVIE_TYPES } from "@/lib/movies.functions";
+import { SafeImage } from "@/components/SafeImage";
+
+/** Returns a clean URL, null when empty, or false when the value is not a usable image link. */
+function normalizeImageUrl(raw: string): string | null | false {
+  const v = raw.trim();
+  if (!v) return null;
+  if (!/^https?:\/\//i.test(v)) return false;
+  // Reject page links (search results, IMDb pages, share links) — they are not images.
+  if (/^https?:\/\/(www\.)?(google\.[a-z.]+|share\.google|imdb\.com|youtube\.com|pinterest\.)/i.test(v))
+    return false;
+  return v;
+}
+
+/** Accepts a bare ID or any YouTube URL and returns the 11-char video ID. */
+function normalizeYouTubeId(raw: string): string | null {
+  const v = raw.trim();
+  if (!v) return null;
+  if (/^[A-Za-z0-9_-]{11}$/.test(v)) return v;
+  const m = v.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);
+  return m ? m[1] : v;
+}
+
 
 export const Route = createFileRoute("/add")({
   head: () => ({
