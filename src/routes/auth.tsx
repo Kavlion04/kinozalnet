@@ -155,6 +155,17 @@ function AuthPage() {
             Google bilan davom etish
           </button>
 
+          <button
+            type="button"
+            onClick={resetPassword}
+            disabled={busy}
+            className="w-full text-center text-xs text-muted-foreground underline hover:text-foreground disabled:opacity-50"
+          >
+            Parolni unutdingizmi?
+          </button>
+
+
+
           <p className="pt-1 text-center text-xs text-muted-foreground">
             {mode === "login" ? "Akkauntingiz yo'qmi?" : "Akkauntingiz bormi?"}{" "}
             <button
