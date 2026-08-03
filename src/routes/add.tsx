@@ -42,7 +42,9 @@ export const Route = createFileRoute("/add")({
 });
 
 function AddPage() {
+  const { isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
   const qc = useQueryClient();
   const add = useServerFn(addMovie);
   const [form, setForm] = useState({
