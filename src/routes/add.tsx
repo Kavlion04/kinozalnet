@@ -3,6 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
+import { useAuth } from "@/hooks/useAuth";
+
 import { addMovie, MOVIE_TYPES } from "@/lib/movies.functions";
 import { SafeImage } from "@/components/SafeImage";
 
@@ -42,7 +44,9 @@ export const Route = createFileRoute("/add")({
 });
 
 function AddPage() {
+  const { isAdmin, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+
   const qc = useQueryClient();
   const add = useServerFn(addMovie);
   const [form, setForm] = useState({
@@ -104,6 +108,20 @@ function AddPage() {
       "w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary",
   });
 
+  if (!authLoading && !isAdmin) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
+          <h1 className="text-3xl">Faqat adminlar uchun</h1>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Kino qo'shish huquqi faqat administratorlarda mavjud.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -112,6 +130,7 @@ function AddPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Ma'lumot bazaga saqlanadi va katalogda ko'rinadi.
         </p>
+
 
         <form
           onSubmit={(e) => {

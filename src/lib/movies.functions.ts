@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+
 
 export const MOVIE_TYPES = ["Film", "Anime", "K-Drama", "Multfilm", "Serial", "Hujjatli"] as const;
 export type MovieType = (typeof MOVIE_TYPES)[number];
@@ -117,6 +119,7 @@ export const listGenres = createServerFn({ method: "GET" }).handler(async (): Pr
 });
 
 export const addMovie = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z
       .object({
@@ -135,12 +138,20 @@ export const addMovie = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }): Promise<{ id: string }> => {
-    const sb = serverClient();
-    const { data: row, error } = await (sb.from("movies") as any).insert(data).select("id").single();
+  .handler(async ({ data, context }): Promise<{ id: string }> => {
+    const { data: isAdmin } = await (context.supabase.rpc as any)("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (isAdmin !== true) throw new Error("Faqat admin kino qo'sha oladi");
+    const { data: row, error } = await (context.supabase.from("movies") as any)
+      .insert(data)
+      .select("id")
+      .single();
     if (error) throw new Error(error.message);
     return { id: row.id };
   });
+
 
 export const listComments = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ movie_id: z.string() }).parse(input))
