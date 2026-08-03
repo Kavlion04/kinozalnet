@@ -61,13 +61,16 @@ export function Navbar() {
               <span className="hidden sm:inline">Kirish</span>
             </Link>
           )}
-          <Link
-            to="/add"
-            className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 font-medium text-primary-foreground transition hover:opacity-90"
-          >
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">Qo'shish</span>
-          </Link>
+          {isAdmin && (
+            <Link
+              to="/add"
+              className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-2 font-medium text-primary-foreground transition hover:opacity-90"
+            >
+              <Plus className="h-4 w-4" />
+              <span className="hidden sm:inline">Qo'shish</span>
+            </Link>
+          )}
+
         </nav>
       </div>
     </header>
