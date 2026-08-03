@@ -22,6 +22,18 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+function friendlyError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("invalid login credentials"))
+    return "Email yoki parol xato. Agar Google bilan ro'yxatdan o'tgan bo'lsangiz, «Google bilan davom etish» tugmasidan foydalaning yoki parolni tiklang.";
+  if (m.includes("email not confirmed"))
+    return "Email hali tasdiqlanmagan. Pochtangizdagi tasdiqlash havolasini bosing.";
+  if (m.includes("user already registered") || m.includes("already been registered"))
+    return "Bu email allaqachon ro'yxatdan o'tgan. «Kirish» bo'limidan foydalaning yoki parolni tiklang.";
+  if (m.includes("password")) return "Parol juda qisqa — kamida 6 belgi bo'lishi kerak.";
+  return message;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "signup">("login");
@@ -33,7 +45,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin", replace: true });
+      if (data.session) navigate({ to: "/", replace: true });
     });
   }, [navigate]);
 
@@ -44,24 +56,51 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: window.location.origin },
         });
         if (error) throw error;
+        if (data.session) {
+          navigate({ to: "/", replace: true });
+          return;
+        }
+        if (data.user && data.user.identities && data.user.identities.length === 0) {
+          setErr(
+            "Bu email allaqachon ro'yxatdan o'tgan. «Kirish» bo'limidan foydalaning yoki parolni tiklang.",
+          );
+          return;
+        }
         setMsg("Ro'yxatdan o'tdingiz. Emailingizni tasdiqlang, so'ng kiring.");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/admin", replace: true });
+        navigate({ to: "/", replace: true });
       }
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Xatolik yuz berdi");
+      setErr(friendlyError(e instanceof Error ? e.message : "Xatolik yuz berdi"));
     } finally {
       setBusy(false);
     }
   };
+
+  const resetPassword = async () => {
+    setErr(null);
+    setMsg(null);
+    if (!email) {
+      setErr("Avval email manzilingizni kiriting.");
+      return;
+    }
+    setBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setBusy(false);
+    if (error) setErr(friendlyError(error.message));
+    else setMsg("Parolni tiklash havolasi emailingizga yuborildi.");
+  };
+
 
   return (
     <div className="min-h-screen bg-background">
