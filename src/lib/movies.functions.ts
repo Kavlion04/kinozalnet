@@ -1,7 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+
 
 export const MOVIE_TYPES = ["Film", "Anime", "K-Drama", "Multfilm", "Serial", "Hujjatli"] as const;
 export type MovieType = (typeof MOVIE_TYPES)[number];
