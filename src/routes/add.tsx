@@ -104,6 +104,20 @@ function AddPage() {
       "w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary",
   });
 
+  if (!authLoading && !isAdmin) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="mx-auto max-w-2xl px-4 py-20 text-center sm:px-6">
+          <h1 className="text-3xl">Faqat adminlar uchun</h1>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Kino qo'shish huquqi faqat administratorlarda mavjud.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -112,6 +126,7 @@ function AddPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Ma'lumot bazaga saqlanadi va katalogda ko'rinadi.
         </p>
+
 
         <form
           onSubmit={(e) => {
