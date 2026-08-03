@@ -3,6 +3,8 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { Navbar } from "@/components/Navbar";
+import { useAuth } from "@/hooks/useAuth";
+
 import { addMovie, MOVIE_TYPES } from "@/lib/movies.functions";
 import { SafeImage } from "@/components/SafeImage";
 
