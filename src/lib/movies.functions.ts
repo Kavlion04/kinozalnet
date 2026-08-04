@@ -147,38 +147,96 @@ export const listGenreRows = createServerFn({ method: "GET" }).handler(
 );
 
 
+const movieFields = {
+  title: z.string().min(1).max(200),
+  original_title: z.string().max(200).optional().nullable(),
+  description: z.string().max(4000).optional().nullable(),
+  year: z.number().int().min(1888).max(2100).optional().nullable(),
+  genre: z.array(z.string().max(50)).max(10).default([]),
+  cast_list: z.array(z.string().max(80)).max(30).default([]),
+  type: z.string().max(30).optional().default("Film"),
+  poster_url: z.string().max(600).optional().nullable(),
+  backdrop_url: z.string().max(600).optional().nullable(),
+  trailer_youtube_id: z.string().max(30).optional().nullable(),
+  full_youtube_id: z.string().max(30).optional().nullable(),
+  video_url: z.string().max(600).optional().nullable(),
+  subtitles_url: z.string().max(600).optional().nullable(),
+  trailer_url: z.string().max(600).optional().nullable(),
+  rating: z.number().min(0).max(10).optional().nullable(),
+  duration_minutes: z.number().int().min(1).max(1000).optional().nullable(),
+};
+
+async function ensureAdmin(context: { supabase: any; userId: string }) {
+  const { data: isAdmin } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: "admin",
+  });
+  if (isAdmin !== true) throw new Error("Faqat adminlar uchun");
+}
+
 export const addMovie = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z
-      .object({
-        title: z.string().min(1).max(200),
-        original_title: z.string().max(200).optional().nullable(),
-        description: z.string().max(4000).optional().nullable(),
-        year: z.number().int().min(1888).max(2100).optional().nullable(),
-        genre: z.array(z.string().max(50)).max(10).default([]),
-        type: z.string().max(30).optional().default("Film"),
-        poster_url: z.string().url().optional().nullable(),
-        backdrop_url: z.string().url().optional().nullable(),
-        trailer_youtube_id: z.string().max(30).optional().nullable(),
-        full_youtube_id: z.string().max(30).optional().nullable(),
-        rating: z.number().min(0).max(10).optional().nullable(),
-        duration_minutes: z.number().int().min(1).max(1000).optional().nullable(),
-      })
-      .parse(input),
-  )
+  .inputValidator((input: unknown) => z.object(movieFields).parse(input))
   .handler(async ({ data, context }): Promise<{ id: string }> => {
-    const { data: isAdmin } = await (context.supabase.rpc as any)("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (isAdmin !== true) throw new Error("Faqat admin kino qo'sha oladi");
+    await ensureAdmin(context as any);
     const { data: row, error } = await (context.supabase.from("movies") as any)
       .insert(data)
       .select("id")
       .single();
     if (error) throw new Error(error.message);
     return { id: row.id };
+  });
+
+export const updateMovie = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), ...movieFields }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ id: string }> => {
+    await ensureAdmin(context as any);
+    const { id, ...patch } = data;
+    const { error } = await (context.supabase.from("movies") as any).update(patch).eq("id", id);
+    if (error) throw new Error(error.message);
+    return { id };
+  });
+
+export const deleteMovie = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await ensureAdmin(context as any);
+    const { error } = await (context.supabase.from("movies") as any).delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const createGenre = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ name: z.string().trim().min(1).max(50) }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await ensureAdmin(context as any);
+    const slug = data.name
+      .toLowerCase()
+      .replace(/[^a-z0-9\u0400-\u04ff]+/gi, "-")
+      .replace(/^-+|-+$/g, "");
+    const { error } = await (context.supabase.from("genres") as any).upsert(
+      { name: data.name, slug },
+      { onConflict: "slug" },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteGenre = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await ensureAdmin(context as any);
+    const { error } = await (context.supabase.from("genres") as any).delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 
