@@ -146,10 +146,9 @@ function AdminPage() {
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-3xl">Moderatsiya paneli</h1>
-              <p className="text-sm text-muted-foreground">Izohlarga tushgan shikoyatlar</p>
+              <h1 className="text-3xl">Admin panel</h1>
+              <p className="text-sm text-muted-foreground">Kinolar, janrlar va moderatsiya</p>
             </div>
-          </div>
           <button
             onClick={signOut}
             className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-accent"
