@@ -35,8 +35,13 @@ export type MovieDTO = {
   backdrop_url: string | null;
   trailer_youtube_id: string | null;
   full_youtube_id: string | null;
+  video_url: string | null;
+  subtitles_url: string | null;
+  trailer_url: string | null;
+  cast_list: string[];
   rating: number | null;
   duration_minutes: number | null;
+  created_at: string | null;
 };
 
 export type CommentDTO = {
@@ -46,6 +51,8 @@ export type CommentDTO = {
   body: string;
   created_at: string;
 };
+
+export type GenreDTO = { id: string; name: string; slug: string };
 
 const rowToDto = (r: any): MovieDTO => ({
   id: r.id,
@@ -59,8 +66,13 @@ const rowToDto = (r: any): MovieDTO => ({
   backdrop_url: r.backdrop_url,
   trailer_youtube_id: r.trailer_youtube_id,
   full_youtube_id: r.full_youtube_id ?? null,
+  video_url: r.video_url ?? null,
+  subtitles_url: r.subtitles_url ?? null,
+  trailer_url: r.trailer_url ?? null,
+  cast_list: r.cast_list ?? [],
   rating: r.rating != null ? Number(r.rating) : null,
   duration_minutes: r.duration_minutes,
+  created_at: r.created_at ?? null,
 });
 
 export const listMovies = createServerFn({ method: "GET" })
