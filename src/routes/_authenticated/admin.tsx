@@ -323,6 +323,8 @@ function AdminPage() {
             ))}
           </ul>
         )}
+          </>
+        )}
       </div>
     </div>
   );
