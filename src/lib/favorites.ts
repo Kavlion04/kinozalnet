@@ -1,4 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toggleFavorite } from "./user-data.functions";
 
 const KEY = "kino_favorites_v1";
 
