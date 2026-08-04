@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ShieldCheck, Eye, EyeOff, Check, Trash2, LogOut, Clock, Flag } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
+import { AdminMovies } from "@/components/admin/AdminMovies";
+import { AdminGenres } from "@/components/admin/AdminGenres";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listReports,
