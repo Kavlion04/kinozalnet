@@ -5,6 +5,7 @@ import { ArrowLeft, Clock, Heart, Share2, Star } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Comments } from "@/components/Comments";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
+import { VideoPlayer } from "@/components/VideoPlayer";
 import { StarRating } from "@/components/StarRating";
 import { SimilarMovies } from "@/components/SimilarMovies";
 import { AddToPlaylist } from "@/components/AddToPlaylist";
