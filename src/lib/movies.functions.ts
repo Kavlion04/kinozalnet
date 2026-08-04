@@ -96,6 +96,7 @@ export const listMovies = createServerFn({ method: "GET" })
     if (data.year) query = query.eq("year", data.year);
     if (data.sort === "year") query = query.order("year", { ascending: false, nullsFirst: false });
     else if (data.sort === "title") query = query.order("title", { ascending: true });
+    else if (data.sort === "newest") query = query.order("created_at", { ascending: false });
     else query = query.order("rating", { ascending: false, nullsFirst: false });
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
