@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Film, Heart, ListMusic, LogIn, LogOut, Plus, ShieldCheck } from "lucide-react";
+import { Film, Heart, ListMusic, LogIn, LogOut, Plus, ShieldCheck, User } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 export function Navbar() {
