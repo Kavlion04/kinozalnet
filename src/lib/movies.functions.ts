@@ -124,12 +124,28 @@ export const getMovie = createServerFn({ method: "GET" })
 
 export const listGenres = createServerFn({ method: "GET" }).handler(async (): Promise<string[]> => {
   const sb = serverClient();
-  const { data, error } = await sb.from("movies").select("genre");
-  if (error) throw new Error(error.message);
+  const [{ data: rows }, { data: table }] = await Promise.all([
+    sb.from("movies").select("genre"),
+    (sb.from("genres") as any).select("name"),
+  ]);
   const set = new Set<string>();
-  (data ?? []).forEach((r: any) => (r.genre ?? []).forEach((g: string) => set.add(g)));
+  (table ?? []).forEach((g: any) => set.add(g.name));
+  (rows ?? []).forEach((r: any) => (r.genre ?? []).forEach((g: string) => set.add(g)));
   return Array.from(set).sort();
 });
+
+/** Admin-managed genre rows (with ids), for the dashboard. */
+export const listGenreRows = createServerFn({ method: "GET" }).handler(
+  async (): Promise<GenreDTO[]> => {
+    const sb = serverClient();
+    const { data, error } = await (sb.from("genres") as any)
+      .select("id, name, slug")
+      .order("name");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as GenreDTO[];
+  },
+);
+
 
 export const addMovie = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
