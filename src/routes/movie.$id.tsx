@@ -145,6 +145,13 @@ function MoviePage() {
                 {movie.description}
               </p>
 
+              {movie.cast_list.length > 0 && (
+                <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">Rollarda: </span>
+                  {movie.cast_list.join(", ")}
+                </p>
+              )}
+
               <div className="mt-6 flex flex-wrap gap-2">
                 <button
                   onClick={() => toggle(movie.id)}
@@ -170,9 +177,24 @@ function MoviePage() {
             </div>
           </div>
 
-          {movie.full_youtube_id && (
+          {movie.video_url && (
             <div className="mt-12">
               <h2 className="mb-4 text-2xl">To'liq kino</h2>
+              <VideoPlayer
+                movieId={movie.id}
+                src={movie.video_url}
+                subtitles={movie.subtitles_url}
+                poster={movie.backdrop_url ?? movie.poster_url}
+                title={movie.title}
+              />
+            </div>
+          )}
+
+          {movie.full_youtube_id && (
+            <div className="mt-12">
+              <h2 className="mb-4 text-2xl">
+                {movie.video_url ? "To'liq kino (YouTube)" : "To'liq kino"}
+              </h2>
               <YouTubePlayer
                 videoId={movie.full_youtube_id}
                 title={`${movie.title} — to'liq kino`}
@@ -188,6 +210,18 @@ function MoviePage() {
                 videoId={movie.trailer_youtube_id}
                 title={`${movie.title} treyler`}
                 storageId={`movie:${movie.id}:trailer`}
+              />
+            </div>
+          )}
+
+          {movie.trailer_url && !movie.trailer_youtube_id && (
+            <div className="mt-12">
+              <h2 className="mb-4 text-2xl">Treyler</h2>
+              <VideoPlayer
+                movieId={`${movie.id}-trailer`}
+                src={movie.trailer_url}
+                poster={movie.backdrop_url ?? movie.poster_url}
+                title={`${movie.title} treyler`}
               />
             </div>
           )}
