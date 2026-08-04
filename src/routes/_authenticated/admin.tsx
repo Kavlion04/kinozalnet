@@ -50,6 +50,7 @@ function AdminPage() {
   const setRep = useServerFn(setReportStatus);
   const delComment = useServerFn(deleteComment);
   const [tab, setTab] = useState<"open" | "reviewed" | "all">("open");
+  const [section, setSection] = useState<"reports" | "movies" | "genres">("reports");
 
   const { data: me, isLoading: meLoading } = useQuery({
     queryKey: ["admin-status"],
