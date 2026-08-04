@@ -35,8 +35,13 @@ export type MovieDTO = {
   backdrop_url: string | null;
   trailer_youtube_id: string | null;
   full_youtube_id: string | null;
+  video_url: string | null;
+  subtitles_url: string | null;
+  trailer_url: string | null;
+  cast_list: string[];
   rating: number | null;
   duration_minutes: number | null;
+  created_at: string | null;
 };
 
 export type CommentDTO = {
@@ -46,6 +51,8 @@ export type CommentDTO = {
   body: string;
   created_at: string;
 };
+
+export type GenreDTO = { id: string; name: string; slug: string };
 
 const rowToDto = (r: any): MovieDTO => ({
   id: r.id,
@@ -59,8 +66,13 @@ const rowToDto = (r: any): MovieDTO => ({
   backdrop_url: r.backdrop_url,
   trailer_youtube_id: r.trailer_youtube_id,
   full_youtube_id: r.full_youtube_id ?? null,
+  video_url: r.video_url ?? null,
+  subtitles_url: r.subtitles_url ?? null,
+  trailer_url: r.trailer_url ?? null,
+  cast_list: r.cast_list ?? [],
   rating: r.rating != null ? Number(r.rating) : null,
   duration_minutes: r.duration_minutes,
+  created_at: r.created_at ?? null,
 });
 
 export const listMovies = createServerFn({ method: "GET" })
@@ -84,6 +96,7 @@ export const listMovies = createServerFn({ method: "GET" })
     if (data.year) query = query.eq("year", data.year);
     if (data.sort === "year") query = query.order("year", { ascending: false, nullsFirst: false });
     else if (data.sort === "title") query = query.order("title", { ascending: true });
+    else if (data.sort === "newest") query = query.order("created_at", { ascending: false });
     else query = query.order("rating", { ascending: false, nullsFirst: false });
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
@@ -111,45 +124,119 @@ export const getMovie = createServerFn({ method: "GET" })
 
 export const listGenres = createServerFn({ method: "GET" }).handler(async (): Promise<string[]> => {
   const sb = serverClient();
-  const { data, error } = await sb.from("movies").select("genre");
-  if (error) throw new Error(error.message);
+  const [{ data: rows }, { data: table }] = await Promise.all([
+    sb.from("movies").select("genre"),
+    (sb.from("genres") as any).select("name"),
+  ]);
   const set = new Set<string>();
-  (data ?? []).forEach((r: any) => (r.genre ?? []).forEach((g: string) => set.add(g)));
+  (table ?? []).forEach((g: any) => set.add(g.name));
+  (rows ?? []).forEach((r: any) => (r.genre ?? []).forEach((g: string) => set.add(g)));
   return Array.from(set).sort();
 });
 
+/** Admin-managed genre rows (with ids), for the dashboard. */
+export const listGenreRows = createServerFn({ method: "GET" }).handler(
+  async (): Promise<GenreDTO[]> => {
+    const sb = serverClient();
+    const { data, error } = await (sb.from("genres") as any)
+      .select("id, name, slug")
+      .order("name");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as GenreDTO[];
+  },
+);
+
+
+const movieFields = {
+  title: z.string().min(1).max(200),
+  original_title: z.string().max(200).optional().nullable(),
+  description: z.string().max(4000).optional().nullable(),
+  year: z.number().int().min(1888).max(2100).optional().nullable(),
+  genre: z.array(z.string().max(50)).max(10).default([]),
+  cast_list: z.array(z.string().max(80)).max(30).default([]),
+  type: z.string().max(30).optional().default("Film"),
+  poster_url: z.string().max(600).optional().nullable(),
+  backdrop_url: z.string().max(600).optional().nullable(),
+  trailer_youtube_id: z.string().max(30).optional().nullable(),
+  full_youtube_id: z.string().max(30).optional().nullable(),
+  video_url: z.string().max(600).optional().nullable(),
+  subtitles_url: z.string().max(600).optional().nullable(),
+  trailer_url: z.string().max(600).optional().nullable(),
+  rating: z.number().min(0).max(10).optional().nullable(),
+  duration_minutes: z.number().int().min(1).max(1000).optional().nullable(),
+};
+
+async function ensureAdmin(context: { supabase: any; userId: string }) {
+  const { data: isAdmin } = await context.supabase.rpc("has_role", {
+    _user_id: context.userId,
+    _role: "admin",
+  });
+  if (isAdmin !== true) throw new Error("Faqat adminlar uchun");
+}
+
 export const addMovie = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
-    z
-      .object({
-        title: z.string().min(1).max(200),
-        original_title: z.string().max(200).optional().nullable(),
-        description: z.string().max(4000).optional().nullable(),
-        year: z.number().int().min(1888).max(2100).optional().nullable(),
-        genre: z.array(z.string().max(50)).max(10).default([]),
-        type: z.string().max(30).optional().default("Film"),
-        poster_url: z.string().url().optional().nullable(),
-        backdrop_url: z.string().url().optional().nullable(),
-        trailer_youtube_id: z.string().max(30).optional().nullable(),
-        full_youtube_id: z.string().max(30).optional().nullable(),
-        rating: z.number().min(0).max(10).optional().nullable(),
-        duration_minutes: z.number().int().min(1).max(1000).optional().nullable(),
-      })
-      .parse(input),
-  )
+  .inputValidator((input: unknown) => z.object(movieFields).parse(input))
   .handler(async ({ data, context }): Promise<{ id: string }> => {
-    const { data: isAdmin } = await (context.supabase.rpc as any)("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (isAdmin !== true) throw new Error("Faqat admin kino qo'sha oladi");
+    await ensureAdmin(context as any);
     const { data: row, error } = await (context.supabase.from("movies") as any)
       .insert(data)
       .select("id")
       .single();
     if (error) throw new Error(error.message);
     return { id: row.id };
+  });
+
+export const updateMovie = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ id: z.string().uuid(), ...movieFields }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ id: string }> => {
+    await ensureAdmin(context as any);
+    const { id, ...patch } = data;
+    const { error } = await (context.supabase.from("movies") as any).update(patch).eq("id", id);
+    if (error) throw new Error(error.message);
+    return { id };
+  });
+
+export const deleteMovie = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await ensureAdmin(context as any);
+    const { error } = await (context.supabase.from("movies") as any).delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const createGenre = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ name: z.string().trim().min(1).max(50) }).parse(input),
+  )
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await ensureAdmin(context as any);
+    const slug = data.name
+      .toLowerCase()
+      .replace(/[^a-z0-9\u0400-\u04ff]+/gi, "-")
+      .replace(/^-+|-+$/g, "");
+    const { error } = await (context.supabase.from("genres") as any).upsert(
+      { name: data.name, slug },
+      { onConflict: "slug" },
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteGenre = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await ensureAdmin(context as any);
+    const { error } = await (context.supabase.from("genres") as any).delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
 
 

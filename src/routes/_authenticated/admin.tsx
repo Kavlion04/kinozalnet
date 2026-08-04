@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { ShieldCheck, Eye, EyeOff, Check, Trash2, LogOut, Clock, Flag } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
+import { AdminMovies } from "@/components/admin/AdminMovies";
+import { AdminGenres } from "@/components/admin/AdminGenres";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listReports,
@@ -50,6 +52,7 @@ function AdminPage() {
   const setRep = useServerFn(setReportStatus);
   const delComment = useServerFn(deleteComment);
   const [tab, setTab] = useState<"open" | "reviewed" | "all">("open");
+  const [section, setSection] = useState<"reports" | "movies" | "genres">("reports");
 
   const { data: me, isLoading: meLoading } = useQuery({
     queryKey: ["admin-status"],
@@ -145,8 +148,8 @@ function AdminPage() {
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-3xl">Moderatsiya paneli</h1>
-              <p className="text-sm text-muted-foreground">Izohlarga tushgan shikoyatlar</p>
+              <h1 className="text-3xl">Admin panel</h1>
+              <p className="text-sm text-muted-foreground">Kinolar, janrlar va moderatsiya</p>
             </div>
           </div>
           <button
@@ -157,6 +160,33 @@ function AdminPage() {
           </button>
         </div>
 
+        <div className="mb-6 flex gap-2 border-b border-border pb-2">
+          {(
+            [
+              ["reports", "Shikoyatlar"],
+              ["movies", "Kinolar"],
+              ["genres", "Janrlar"],
+            ] as const
+          ).map(([k, label]) => (
+            <button
+              key={k}
+              onClick={() => setSection(k)}
+              className={`rounded-lg px-3 py-2 text-sm font-medium ${
+                section === k
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-secondary"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {section === "movies" && <AdminMovies />}
+        {section === "genres" && <AdminGenres />}
+
+        {section === "reports" && (
+          <>
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
             { label: "Yangi shikoyat", value: statData?.open ?? 0, icon: Flag },
@@ -190,6 +220,7 @@ function AdminPage() {
 
         {isLoading ? (
           <p className="text-muted-foreground">Yuklanmoqda...</p>
+
         ) : list.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
             Shikoyatlar yo'q.
@@ -293,6 +324,8 @@ function AdminPage() {
               </li>
             ))}
           </ul>
+        )}
+          </>
         )}
       </div>
     </div>

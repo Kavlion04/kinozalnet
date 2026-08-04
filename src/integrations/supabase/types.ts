@@ -105,9 +105,60 @@ export type Database = {
           },
         ]
       }
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          movie_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          movie_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          movie_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_movie_id_fkey"
+            columns: ["movie_id"]
+            isOneToOne: false
+            referencedRelation: "movies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      genres: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       movies: {
         Row: {
           backdrop_url: string | null
+          cast_list: string[]
           created_at: string
           description: string | null
           duration_minutes: number | null
@@ -117,13 +168,17 @@ export type Database = {
           original_title: string | null
           poster_url: string | null
           rating: number | null
+          subtitles_url: string | null
           title: string
+          trailer_url: string | null
           trailer_youtube_id: string | null
           type: string
+          video_url: string | null
           year: number | null
         }
         Insert: {
           backdrop_url?: string | null
+          cast_list?: string[]
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
@@ -133,13 +188,17 @@ export type Database = {
           original_title?: string | null
           poster_url?: string | null
           rating?: number | null
+          subtitles_url?: string | null
           title: string
+          trailer_url?: string | null
           trailer_youtube_id?: string | null
           type?: string
+          video_url?: string | null
           year?: number | null
         }
         Update: {
           backdrop_url?: string | null
+          cast_list?: string[]
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
@@ -149,10 +208,37 @@ export type Database = {
           original_title?: string | null
           poster_url?: string | null
           rating?: number | null
+          subtitles_url?: string | null
           title?: string
+          trailer_url?: string | null
           trailer_youtube_id?: string | null
           type?: string
+          video_url?: string | null
           year?: number | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -176,6 +262,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      watch_history: {
+        Row: {
+          completed: boolean
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          movie_id: string
+          position_seconds: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          movie_id: string
+          position_seconds?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          movie_id?: string
+          position_seconds?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watch_history_movie_id_fkey"
+            columns: ["movie_id"]
+            isOneToOne: false
+            referencedRelation: "movies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
