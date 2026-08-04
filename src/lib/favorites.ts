@@ -33,8 +33,13 @@ export function useFavorites() {
 
   const toggle = useCallback((id: string) => {
     const cur = read();
-    const next = cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id];
+    const on = !cur.includes(id);
+    const next = on ? [...cur, id] : cur.filter((x) => x !== id);
     write(next);
+    // Mirror the change into the account when signed in.
+    void supabase.auth.getSession().then(({ data }) => {
+      if (data.session) toggleFavorite({ data: { movie_id: id, on } }).catch(() => {});
+    });
   }, []);
 
   const has = useCallback((id: string) => ids.includes(id), [ids]);
