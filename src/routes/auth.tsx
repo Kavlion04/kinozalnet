@@ -56,28 +56,29 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { emailRedirectTo: window.location.origin },
-        });
+        const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
-        if (data.session) {
-          navigate({ to: "/", replace: true });
-          return;
-        }
         if (data.user && data.user.identities && data.user.identities.length === 0) {
           setErr(
             "Bu email allaqachon ro'yxatdan o'tgan. «Kirish» bo'limidan foydalaning yoki parolni tiklang.",
           );
           return;
         }
-        setMsg("Ro'yxatdan o'tdingiz. Emailingizni tasdiqlang, so'ng kiring.");
+        if (!data.session) {
+          // Email tasdiqlash yoqilgan bo'lsa — darhol kirishga urinamiz.
+          const { error: e2 } = await supabase.auth.signInWithPassword({ email, password });
+          if (e2) {
+            setMsg("Ro'yxatdan o'tdingiz. Endi «Kirish» bo'limidan kiring.");
+            return;
+          }
+        }
+        navigate({ to: "/", replace: true });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         navigate({ to: "/", replace: true });
       }
+
     } catch (e) {
       setErr(friendlyError(e instanceof Error ? e.message : "Xatolik yuz berdi"));
     } finally {
