@@ -41,8 +41,10 @@ const SORTS = [
 function SearchPage() {
   const { q, type, genre, sort } = Route.useSearch();
   const navigate = useNavigate({ from: Route.fullPath });
-  const set = (patch: Partial<{ q: string; type: string; genre: string; sort: string }>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
+  type SearchState = { q: string; type: string; genre: string; sort: string };
+  const set = (patch: Partial<SearchState>) =>
+    navigate({ search: (prev: SearchState) => ({ ...prev, ...patch }), replace: true });
+
 
   const { data: genres = [] } = useQuery({
     queryKey: ["genres"],
