@@ -17,6 +17,16 @@ export function Navbar() {
         </Link>
         <nav className="flex items-center gap-1 text-sm">
           <Link
+            to="/search"
+            search={{ q: "", type: "", genre: "", sort: "rating" }}
+            className="flex items-center gap-1.5 rounded-md px-3 py-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+            activeProps={{ className: "text-foreground bg-secondary" }}
+          >
+            <Search className="h-4 w-4" />
+            <span className="hidden sm:inline">Qidirish</span>
+          </Link>
+
+          <Link
             to="/favorites"
             className="flex items-center gap-1.5 rounded-md px-3 py-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground"
             activeProps={{ className: "text-foreground bg-secondary" }}
