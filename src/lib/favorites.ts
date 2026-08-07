@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toggleFavorite } from "./user-data.functions";
+import { listMyFavorites, toggleFavorite } from "./user-data.functions";
+
 
 const KEY = "kino_favorites_v1";
 
@@ -30,6 +31,31 @@ export function useFavorites() {
       window.removeEventListener("storage", onChange);
     };
   }, []);
+
+  // Merge account favorites into the local list once signed in.
+  useEffect(() => {
+    let cancelled = false;
+    void supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session || cancelled) return;
+      try {
+        const rows = (await listMyFavorites({})) as { movie_id: string }[];
+        const remote = rows.map((r) => r.movie_id);
+        const local = read();
+        const merged = Array.from(new Set([...local, ...remote]));
+        const missing = local.filter((id) => !remote.includes(id));
+        if (merged.length !== local.length) write(merged);
+        for (const id of missing) {
+          await toggleFavorite({ data: { movie_id: id, on: true } }).catch(() => {});
+        }
+      } catch {
+        /* offline or not signed in */
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
 
   const toggle = useCallback((id: string) => {
     const cur = read();

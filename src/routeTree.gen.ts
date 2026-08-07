@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PlaylistsRouteImport } from './routes/playlists'
 import { Route as FavoritesRouteImport } from './routes/favorites'
@@ -25,6 +26,11 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/favorites': typeof FavoritesRoute
   '/playlists': typeof PlaylistsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/favorites': typeof FavoritesRoute
   '/playlists': typeof PlaylistsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/profile': typeof AuthenticatedProfileRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/favorites': typeof FavoritesRoute
   '/playlists': typeof PlaylistsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
+  '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/playlists'
     | '/reset-password'
+    | '/search'
     | '/sitemap.xml'
     | '/admin'
     | '/profile'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/playlists'
     | '/reset-password'
+    | '/search'
     | '/sitemap.xml'
     | '/admin'
     | '/profile'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/favorites'
     | '/playlists'
     | '/reset-password'
+    | '/search'
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/_authenticated/profile'
@@ -174,6 +186,7 @@ export interface RootRouteChildren {
   FavoritesRoute: typeof FavoritesRoute
   PlaylistsRoute: typeof PlaylistsRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   MovieIdRoute: typeof MovieIdRoute
 }
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -300,6 +320,7 @@ const rootRouteChildren: RootRouteChildren = {
   FavoritesRoute: FavoritesRoute,
   PlaylistsRoute: PlaylistsRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
+  SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   MovieIdRoute: MovieIdRoute,
 }
