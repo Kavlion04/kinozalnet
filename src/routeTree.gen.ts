@@ -12,12 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as PlaylistsRouteImport } from './routes/playlists'
 import { Route as FavoritesRouteImport } from './routes/favorites'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AddRouteImport } from './routes/add'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PlaylistsIndexRouteImport } from './routes/playlists.index'
 import { Route as PlaylistsIdRouteImport } from './routes/playlists.$id'
 import { Route as MovieIdRouteImport } from './routes/movie.$id'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
@@ -36,11 +36,6 @@ const SearchRoute = SearchRouteImport.update({
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlaylistsRoute = PlaylistsRouteImport.update({
-  id: '/playlists',
-  path: '/playlists',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FavoritesRoute = FavoritesRouteImport.update({
@@ -67,10 +62,15 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlaylistsIndexRoute = PlaylistsIndexRouteImport.update({
+  id: '/playlists/',
+  path: '/playlists/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlaylistsIdRoute = PlaylistsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => PlaylistsRoute,
+  id: '/playlists/$id',
+  path: '/playlists/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MovieIdRoute = MovieIdRouteImport.update({
   id: '/movie/$id',
@@ -93,7 +93,6 @@ export interface FileRoutesByFullPath {
   '/add': typeof AddRoute
   '/auth': typeof AuthRoute
   '/favorites': typeof FavoritesRoute
-  '/playlists': typeof PlaylistsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -101,13 +100,13 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AuthenticatedProfileRoute
   '/movie/$id': typeof MovieIdRoute
   '/playlists/$id': typeof PlaylistsIdRoute
+  '/playlists/': typeof PlaylistsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/add': typeof AddRoute
   '/auth': typeof AuthRoute
   '/favorites': typeof FavoritesRoute
-  '/playlists': typeof PlaylistsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -115,6 +114,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
   '/movie/$id': typeof MovieIdRoute
   '/playlists/$id': typeof PlaylistsIdRoute
+  '/playlists': typeof PlaylistsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,7 +123,6 @@ export interface FileRoutesById {
   '/add': typeof AddRoute
   '/auth': typeof AuthRoute
   '/favorites': typeof FavoritesRoute
-  '/playlists': typeof PlaylistsRouteWithChildren
   '/reset-password': typeof ResetPasswordRoute
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -131,6 +130,7 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/movie/$id': typeof MovieIdRoute
   '/playlists/$id': typeof PlaylistsIdRoute
+  '/playlists/': typeof PlaylistsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -139,7 +139,6 @@ export interface FileRouteTypes {
     | '/add'
     | '/auth'
     | '/favorites'
-    | '/playlists'
     | '/reset-password'
     | '/search'
     | '/sitemap.xml'
@@ -147,13 +146,13 @@ export interface FileRouteTypes {
     | '/profile'
     | '/movie/$id'
     | '/playlists/$id'
+    | '/playlists/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/add'
     | '/auth'
     | '/favorites'
-    | '/playlists'
     | '/reset-password'
     | '/search'
     | '/sitemap.xml'
@@ -161,6 +160,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/movie/$id'
     | '/playlists/$id'
+    | '/playlists'
   id:
     | '__root__'
     | '/'
@@ -168,7 +168,6 @@ export interface FileRouteTypes {
     | '/add'
     | '/auth'
     | '/favorites'
-    | '/playlists'
     | '/reset-password'
     | '/search'
     | '/sitemap.xml'
@@ -176,6 +175,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/movie/$id'
     | '/playlists/$id'
+    | '/playlists/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -184,11 +184,12 @@ export interface RootRouteChildren {
   AddRoute: typeof AddRoute
   AuthRoute: typeof AuthRoute
   FavoritesRoute: typeof FavoritesRoute
-  PlaylistsRoute: typeof PlaylistsRouteWithChildren
   ResetPasswordRoute: typeof ResetPasswordRoute
   SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   MovieIdRoute: typeof MovieIdRoute
+  PlaylistsIdRoute: typeof PlaylistsIdRoute
+  PlaylistsIndexRoute: typeof PlaylistsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,13 +213,6 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/playlists': {
-      id: '/playlists'
-      path: '/playlists'
-      fullPath: '/playlists'
-      preLoaderRoute: typeof PlaylistsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/favorites': {
@@ -256,12 +250,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/playlists/': {
+      id: '/playlists/'
+      path: '/playlists'
+      fullPath: '/playlists/'
+      preLoaderRoute: typeof PlaylistsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/playlists/$id': {
       id: '/playlists/$id'
-      path: '/$id'
+      path: '/playlists/$id'
       fullPath: '/playlists/$id'
       preLoaderRoute: typeof PlaylistsIdRouteImport
-      parentRoute: typeof PlaylistsRoute
+      parentRoute: typeof rootRouteImport
     }
     '/movie/$id': {
       id: '/movie/$id'
@@ -300,29 +301,18 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface PlaylistsRouteChildren {
-  PlaylistsIdRoute: typeof PlaylistsIdRoute
-}
-
-const PlaylistsRouteChildren: PlaylistsRouteChildren = {
-  PlaylistsIdRoute: PlaylistsIdRoute,
-}
-
-const PlaylistsRouteWithChildren = PlaylistsRoute._addFileChildren(
-  PlaylistsRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AddRoute: AddRoute,
   AuthRoute: AuthRoute,
   FavoritesRoute: FavoritesRoute,
-  PlaylistsRoute: PlaylistsRouteWithChildren,
   ResetPasswordRoute: ResetPasswordRoute,
   SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   MovieIdRoute: MovieIdRoute,
+  PlaylistsIdRoute: PlaylistsIdRoute,
+  PlaylistsIndexRoute: PlaylistsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
