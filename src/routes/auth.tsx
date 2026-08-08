@@ -78,7 +78,6 @@ function AuthPage() {
         if (error) throw error;
         navigate({ to: "/", replace: true });
       }
-
     } catch (e) {
       setErr(friendlyError(e instanceof Error ? e.message : "Xatolik yuz berdi"));
     } finally {
@@ -101,7 +100,6 @@ function AuthPage() {
     if (error) setErr(friendlyError(error.message));
     else setMsg("Parolni tiklash havolasi emailingizga yuborildi.");
   };
-
 
   return (
     <div className="min-h-screen bg-background">
@@ -165,8 +163,6 @@ function AuthPage() {
             Parolni unutdingizmi?
           </button>
 
-
-
           <p className="pt-1 text-center text-xs text-muted-foreground">
             {mode === "login" ? "Akkauntingiz yo'qmi?" : "Akkauntingiz bormi?"}{" "}
             <button
@@ -179,7 +175,10 @@ function AuthPage() {
           </p>
         </form>
 
-        <Link to="/" className="mt-6 inline-block text-sm text-muted-foreground hover:text-foreground">
+        <Link
+          to="/"
+          className="mt-6 inline-block text-sm text-muted-foreground hover:text-foreground"
+        >
           ← Bosh sahifa
         </Link>
       </div>

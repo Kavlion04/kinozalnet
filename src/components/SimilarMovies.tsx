@@ -10,7 +10,9 @@ export function SimilarMovies({ movie }: { movie: MovieDTO }) {
       const byGenre = primaryGenre
         ? ((await listMovies({ data: { genre: primaryGenre, sort: "rating" } })) as MovieDTO[])
         : [];
-      const byType = ((await listMovies({ data: { type: movie.type, sort: "rating" } })) as MovieDTO[]);
+      const byType = (await listMovies({
+        data: { type: movie.type, sort: "rating" },
+      })) as MovieDTO[];
       const seen = new Set<string>([movie.id]);
       const out: MovieDTO[] = [];
       for (const m of [...byGenre, ...byType]) {

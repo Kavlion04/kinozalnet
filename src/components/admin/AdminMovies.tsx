@@ -271,7 +271,12 @@ export function AdminMovies() {
             className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card p-3"
           >
             <div className="h-16 w-12 shrink-0 overflow-hidden rounded-md">
-              <SafeImage src={m.poster_url} alt={m.title} className="h-full w-full object-cover" showIcon={false} />
+              <SafeImage
+                src={m.poster_url}
+                alt={m.title}
+                className="h-full w-full object-cover"
+                showIcon={false}
+              />
             </div>
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold">{m.title}</p>

@@ -51,7 +51,10 @@ export const Route = createFileRoute("/movie/$id")({
   errorComponent: ({ error }) => <div className="p-8 text-destructive">{error.message}</div>,
   notFoundComponent: () => (
     <div className="p-8">
-      Kino topilmadi. <Link to="/" className="text-primary underline">Bosh sahifa</Link>
+      Kino topilmadi.{" "}
+      <Link to="/" className="text-primary underline">
+        Bosh sahifa
+      </Link>
     </div>
   ),
 });
@@ -71,7 +74,9 @@ function MoviePage() {
     try {
       if (navigator.share) await navigator.share({ title: movie.title, url });
       else await navigator.clipboard.writeText(url);
-    } catch {}
+    } catch {
+      // ignore (user cancelled or clipboard blocked)
+    }
   };
 
   return (
@@ -113,7 +118,6 @@ function MoviePage() {
               </div>
             </div>
 
-
             <div>
               <h1 className="text-4xl sm:text-6xl">{movie.title}</h1>
               {movie.original_title && movie.original_title !== movie.title && (
@@ -136,7 +140,10 @@ function MoviePage() {
 
               <div className="mt-4 flex flex-wrap gap-2">
                 {movie.genre.map((g) => (
-                  <span key={g} className="rounded-full border border-border bg-secondary/60 px-3 py-1 text-xs">
+                  <span
+                    key={g}
+                    className="rounded-full border border-border bg-secondary/60 px-3 py-1 text-xs"
+                  >
                     {g}
                   </span>
                 ))}

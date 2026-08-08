@@ -24,7 +24,7 @@ export const listMyFavorites = createServerFn({ method: "GET" })
 
 export const toggleFavorite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ movie_id: z.string().uuid(), on: z.boolean() }).parse(input),
   )
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
@@ -61,7 +61,7 @@ export const listMyHistory = createServerFn({ method: "GET" })
 
 export const saveProgress = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         movie_id: z.string().uuid(),
@@ -112,7 +112,7 @@ export const getMyProfile = createServerFn({ method: "GET" })
 
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         display_name: z.string().trim().max(60).optional().nullable(),

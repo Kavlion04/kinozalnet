@@ -1,5 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Film, Heart, ListMusic, LogIn, LogOut, Plus, Search, ShieldCheck, User } from "lucide-react";
+import {
+  Film,
+  Heart,
+  ListMusic,
+  LogIn,
+  LogOut,
+  Plus,
+  Search,
+  ShieldCheck,
+  User,
+} from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 
@@ -91,7 +101,6 @@ export function Navbar() {
               <span className="hidden sm:inline">Qo'shish</span>
             </Link>
           )}
-
         </nav>
       </div>
     </header>

@@ -51,7 +51,9 @@ export function YouTubePlayer({ videoId, title, storageId }: Props) {
         setSavedTime(t);
         setShowResume(true);
       }
-    } catch {}
+    } catch {
+      /* ignore */
+    }
 
     let destroyed = false;
 
@@ -79,7 +81,9 @@ export function YouTubePlayer({ videoId, title, storageId }: Props) {
                     window.dispatchEvent(new Event("watch-progress-changed"));
                   }
                 }
-              } catch {}
+              } catch {
+                /* ignore */
+              }
             }, 3000);
           },
           onStateChange: (e: any) => {
@@ -87,7 +91,9 @@ export function YouTubePlayer({ videoId, title, storageId }: Props) {
             if (e.data === 0) {
               try {
                 localStorage.removeItem(key);
-              } catch {}
+              } catch {
+                /* ignore */
+              }
               setShowResume(false);
             }
           },
@@ -108,7 +114,9 @@ export function YouTubePlayer({ videoId, title, storageId }: Props) {
           }
         }
         playerRef.current?.destroy?.();
-      } catch {}
+      } catch {
+        /* ignore */
+      }
     };
   }, [videoId, key]);
 
@@ -119,18 +127,24 @@ export function YouTubePlayer({ videoId, title, storageId }: Props) {
       p.seekTo(savedTimeRef.current, true);
       p.playVideo?.();
       setShowResume(false);
-    } catch {}
+    } catch {
+      /* ignore */
+    }
   };
 
   const restart = () => {
     try {
       localStorage.removeItem(key);
-    } catch {}
+    } catch {
+      /* ignore */
+    }
     const p = playerRef.current;
     try {
       p?.seekTo?.(0, true);
       p?.playVideo?.();
-    } catch {}
+    } catch {
+      /* ignore */
+    }
     setShowResume(false);
   };
 
@@ -151,7 +165,8 @@ export function YouTubePlayer({ videoId, title, storageId }: Props) {
       {showResume && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-secondary/60 px-4 py-3 text-sm">
           <span className="text-muted-foreground">
-            Oxirgi tomosha qilingan joy: <span className="text-foreground font-medium">{fmt(savedTime)}</span>
+            Oxirgi tomosha qilingan joy:{" "}
+            <span className="text-foreground font-medium">{fmt(savedTime)}</span>
           </span>
           <div className="flex gap-2">
             <button

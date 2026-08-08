@@ -4,7 +4,6 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-
 export const MOVIE_TYPES = ["Film", "Anime", "K-Drama", "Multfilm", "Serial", "Hujjatli"] as const;
 export type MovieType = (typeof MOVIE_TYPES)[number];
 
@@ -15,7 +14,8 @@ function serverClient() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -76,7 +76,7 @@ const rowToDto = (r: any): MovieDTO => ({
 });
 
 export const listMovies = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         q: z.string().optional().default(""),
@@ -104,7 +104,7 @@ export const listMovies = createServerFn({ method: "GET" })
   });
 
 export const listMoviesByIds = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => z.object({ ids: z.array(z.string()).max(50) }).parse(input))
+  .validator((input: unknown) => z.object({ ids: z.array(z.string()).max(50) }).parse(input))
   .handler(async ({ data }): Promise<MovieDTO[]> => {
     if (data.ids.length === 0) return [];
     const sb = serverClient();
@@ -114,10 +114,14 @@ export const listMoviesByIds = createServerFn({ method: "GET" })
   });
 
 export const getMovie = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => z.object({ id: z.string() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string() }).parse(input))
   .handler(async ({ data }): Promise<MovieDTO | null> => {
     const sb = serverClient();
-    const { data: row, error } = await sb.from("movies").select("*").eq("id", data.id).maybeSingle();
+    const { data: row, error } = await sb
+      .from("movies")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (error) throw new Error(error.message);
     return row ? rowToDto(row) : null;
   });
@@ -138,14 +142,11 @@ export const listGenres = createServerFn({ method: "GET" }).handler(async (): Pr
 export const listGenreRows = createServerFn({ method: "GET" }).handler(
   async (): Promise<GenreDTO[]> => {
     const sb = serverClient();
-    const { data, error } = await (sb.from("genres") as any)
-      .select("id, name, slug")
-      .order("name");
+    const { data, error } = await (sb.from("genres") as any).select("id, name, slug").order("name");
     if (error) throw new Error(error.message);
     return (data ?? []) as GenreDTO[];
   },
 );
-
 
 const movieFields = {
   title: z.string().min(1).max(200),
@@ -176,7 +177,7 @@ async function ensureAdmin(context: { supabase: any; userId: string }) {
 
 export const addMovie = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object(movieFields).parse(input))
+  .validator((input: unknown) => z.object(movieFields).parse(input))
   .handler(async ({ data, context }): Promise<{ id: string }> => {
     await ensureAdmin(context as any);
     const { data: row, error } = await (context.supabase.from("movies") as any)
@@ -189,7 +190,7 @@ export const addMovie = createServerFn({ method: "POST" })
 
 export const updateMovie = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ id: z.string().uuid(), ...movieFields }).parse(input),
   )
   .handler(async ({ data, context }): Promise<{ id: string }> => {
@@ -202,7 +203,7 @@ export const updateMovie = createServerFn({ method: "POST" })
 
 export const deleteMovie = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
     await ensureAdmin(context as any);
     const { error } = await (context.supabase.from("movies") as any).delete().eq("id", data.id);
@@ -212,7 +213,7 @@ export const deleteMovie = createServerFn({ method: "POST" })
 
 export const createGenre = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z.object({ name: z.string().trim().min(1).max(50) }).parse(input),
   )
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
@@ -231,7 +232,7 @@ export const createGenre = createServerFn({ method: "POST" })
 
 export const deleteGenre = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
     await ensureAdmin(context as any);
     const { error } = await (context.supabase.from("genres") as any).delete().eq("id", data.id);
@@ -239,9 +240,8 @@ export const deleteGenre = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-
 export const listComments = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) => z.object({ movie_id: z.string() }).parse(input))
+  .validator((input: unknown) => z.object({ movie_id: z.string() }).parse(input))
   .handler(async ({ data }): Promise<CommentDTO[]> => {
     const sb = serverClient();
     const { data: rows, error } = await (sb.from("comments") as any)
@@ -254,7 +254,7 @@ export const listComments = createServerFn({ method: "GET" })
   });
 
 export const addComment = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         movie_id: z.string().uuid(),

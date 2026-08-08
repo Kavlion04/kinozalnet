@@ -46,7 +46,9 @@ export function pushRecent(movieId: string) {
     const next = [movieId, ...cur.filter((x) => x !== movieId)].slice(0, 20);
     localStorage.setItem(RECENT_KEY, JSON.stringify(next));
     window.dispatchEvent(new Event("recent-changed"));
-  } catch {}
+  } catch {
+    // ignore
+  }
 }
 
 export function useRecent() {

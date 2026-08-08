@@ -14,7 +14,11 @@ function normalizeImageUrl(raw: string): string | null | false {
   if (!v) return null;
   if (!/^https?:\/\//i.test(v)) return false;
   // Reject page links (search results, IMDb pages, share links) — they are not images.
-  if (/^https?:\/\/(www\.)?(google\.[a-z.]+|share\.google|imdb\.com|youtube\.com|pinterest\.)/i.test(v))
+  if (
+    /^https?:\/\/(www\.)?(google\.[a-z.]+|share\.google|imdb\.com|youtube\.com|pinterest\.)/i.test(
+      v,
+    )
+  )
     return false;
   return v;
 }
@@ -27,7 +31,6 @@ function normalizeYouTubeId(raw: string): string | null {
   const m = v.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1] : v;
 }
-
 
 export const Route = createFileRoute("/add")({
   head: () => ({
@@ -69,8 +72,12 @@ function AddPage() {
     mutationFn: async () => {
       const poster = normalizeImageUrl(form.poster_url);
       const backdrop = normalizeImageUrl(form.backdrop_url);
-      if (poster === false) throw new Error("Poster URL to'g'ri rasm havolasi bo'lishi kerak (https://... .jpg/.png)");
-      if (backdrop === false) throw new Error("Backdrop URL to'g'ri rasm havolasi bo'lishi kerak (https://... .jpg/.png)");
+      if (poster === false)
+        throw new Error("Poster URL to'g'ri rasm havolasi bo'lishi kerak (https://... .jpg/.png)");
+      if (backdrop === false)
+        throw new Error(
+          "Backdrop URL to'g'ri rasm havolasi bo'lishi kerak (https://... .jpg/.png)",
+        );
 
       const payload = {
         title: form.title.trim(),
@@ -131,7 +138,6 @@ function AddPage() {
           Ma'lumot bazaga saqlanadi va katalogda ko'rinadi.
         </p>
 
-
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -146,7 +152,9 @@ function AddPage() {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Asl nomi</label>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Asl nomi
+              </label>
               <input {...field("original_title")} />
             </div>
             <div>
@@ -173,14 +181,18 @@ function AddPage() {
                 className="w-full rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none focus:border-primary"
               >
                 {MOVIE_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
                 ))}
               </select>
             </div>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Poster URL</label>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Poster URL
+              </label>
               <input placeholder="https://.../poster.jpg" {...field("poster_url")} />
               {form.poster_url.trim() && (
                 <div className="mt-2 h-28 w-20 overflow-hidden rounded-lg border border-border">
@@ -194,10 +206,11 @@ function AddPage() {
               )}
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Backdrop URL</label>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Backdrop URL
+              </label>
               <input placeholder="https://.../backdrop.jpg" {...field("backdrop_url")} />
             </div>
-
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
@@ -215,11 +228,15 @@ function AddPage() {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Reyting 0-10</label>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Reyting 0-10
+              </label>
               <input type="number" step="0.1" min="0" max="10" {...field("rating")} />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Davomiyligi (daq)</label>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Davomiyligi (daq)
+              </label>
               <input type="number" {...field("duration_minutes")} />
             </div>
           </div>

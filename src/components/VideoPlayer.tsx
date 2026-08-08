@@ -183,13 +183,28 @@ export function VideoPlayer({
         />
         <div className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-white">
           <div className="flex shrink-0 items-center gap-1">
-            <button type="button" onClick={toggle} aria-label="O'ynatish" className="rounded p-2 hover:bg-white/10">
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label="O'ynatish"
+              className="rounded p-2 hover:bg-white/10"
+            >
               {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </button>
-            <button type="button" onClick={() => seek(-10)} aria-label="10s orqaga" className="rounded p-2 hover:bg-white/10">
+            <button
+              type="button"
+              onClick={() => seek(-10)}
+              aria-label="10s orqaga"
+              className="rounded p-2 hover:bg-white/10"
+            >
               <RotateCcw className="h-4 w-4" />
             </button>
-            <button type="button" onClick={() => seek(10)} aria-label="10s oldinga" className="rounded p-2 hover:bg-white/10">
+            <button
+              type="button"
+              onClick={() => seek(10)}
+              aria-label="10s oldinga"
+              className="rounded p-2 hover:bg-white/10"
+            >
               <RotateCw className="h-4 w-4" />
             </button>
           </div>

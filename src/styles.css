@@ -39,7 +39,12 @@
   --shadow-glow: 0 20px 60px -20px oklch(0.6 0.22 25 / 0.5);
   --shadow-poster: 0 30px 60px -25px rgb(0 0 0 / 0.7);
 
-  --gradient-hero: linear-gradient(180deg, transparent 0%, oklch(0.11 0.02 260 / 0.4) 50%, oklch(0.11 0.02 260) 100%);
+  --gradient-hero: linear-gradient(
+    180deg,
+    transparent 0%,
+    oklch(0.11 0.02 260 / 0.4) 50%,
+    oklch(0.11 0.02 260) 100%
+  );
   --gradient-fade: linear-gradient(180deg, transparent 0%, oklch(0.11 0.02 260 / 0.9) 100%);
 }
 
@@ -82,13 +87,17 @@
   * {
     border-color: var(--color-border);
   }
-  html, body {
+  html,
+  body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, .display {
+  h1,
+  h2,
+  h3,
+  .display {
     font-family: var(--font-display);
     letter-spacing: 0.02em;
   }
@@ -96,5 +105,7 @@
 
 @utility no-scrollbar {
   scrollbar-width: none;
-  &::-webkit-scrollbar { display: none; }
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }

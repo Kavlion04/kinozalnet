@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { listMyFavorites, toggleFavorite } from "./user-data.functions";
 
-
 const KEY = "kino_favorites_v1";
 
 function read(): string[] {
@@ -55,7 +54,6 @@ export function useFavorites() {
       cancelled = true;
     };
   }, []);
-
 
   const toggle = useCallback((id: string) => {
     const cur = read();

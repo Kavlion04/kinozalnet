@@ -8,7 +8,10 @@ export const Route = createFileRoute("/playlists")({
   head: () => ({
     meta: [
       { title: "To'plamlar — Kinozal" },
-      { name: "description", content: "O'zingizning kino to'plamlaringizni yarating va boshqaring." },
+      {
+        name: "description",
+        content: "O'zingizning kino to'plamlaringizni yarating va boshqaring.",
+      },
       { property: "og:title", content: "To'plamlar — Kinozal" },
       { property: "og:description", content: "Kino to'plamlari." },
       { property: "og:type", content: "website" },

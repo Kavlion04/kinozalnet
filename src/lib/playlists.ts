@@ -43,7 +43,12 @@ export function usePlaylists() {
 
   const create = useCallback((name: string): string => {
     const id = uid();
-    const next: Playlist = { id, name: name.trim() || "Yangi to'plam", movieIds: [], createdAt: Date.now() };
+    const next: Playlist = {
+      id,
+      name: name.trim() || "Yangi to'plam",
+      movieIds: [],
+      createdAt: Date.now(),
+    };
     write([next, ...read()]);
     return id;
   }, []);
