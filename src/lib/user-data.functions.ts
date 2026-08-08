@@ -27,9 +27,16 @@ export const toggleFavorite = createServerFn({ method: "POST" })
   .validator((input: unknown) =>
     z.object({ movie_id: z.string().uuid(), on: z.boolean() }).parse(input),
   )
-  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+  .handler(async ({ data, context }): Promise<{ ok: true; missing?: true }> => {
     const sb = context.supabase as any;
     if (data.on) {
+      // The movie may have been deleted; skip instead of hitting the FK constraint.
+      const { data: movie } = await sb
+        .from("movies")
+        .select("id")
+        .eq("id", data.movie_id)
+        .maybeSingle();
+      if (!movie) return { ok: true, missing: true };
       const { error } = await sb
         .from("favorites")
         .upsert(
