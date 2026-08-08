@@ -60,7 +60,7 @@ function publicClient() {
 
 /** Anyone (also anonymous) can file a report about a comment. */
 export const reportComment = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         comment_id: z.string().uuid(),
@@ -102,7 +102,7 @@ async function assertAdmin(context: { supabase: any; userId: string }) {
 
 export const listReports = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({ status: z.enum(["open", "reviewed", "dismissed", "all"]).default("open") })
       .parse(input ?? {}),
@@ -169,7 +169,7 @@ export const getModerationStats = createServerFn({ method: "GET" })
 
 export const setCommentStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         comment_id: z.string().uuid(),
@@ -194,7 +194,7 @@ export const setCommentStatus = createServerFn({ method: "POST" })
 
 export const setReportStatus = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) =>
+  .validator((input: unknown) =>
     z
       .object({
         report_id: z.string().uuid(),
@@ -217,7 +217,7 @@ export const setReportStatus = createServerFn({ method: "POST" })
 
 export const deleteComment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: unknown) => z.object({ comment_id: z.string().uuid() }).parse(input))
+  .validator((input: unknown) => z.object({ comment_id: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
     await assertAdmin(context as any);
     const { error } = await (context.supabase.from("comments") as any)
