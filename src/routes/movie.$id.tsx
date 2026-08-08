@@ -74,7 +74,9 @@ function MoviePage() {
     try {
       if (navigator.share) await navigator.share({ title: movie.title, url });
       else await navigator.clipboard.writeText(url);
-    } catch {}
+    } catch {
+      // ignore (user cancelled or clipboard blocked)
+    }
   };
 
   return (
