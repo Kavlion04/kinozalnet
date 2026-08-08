@@ -4,7 +4,6 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-
 export const MOVIE_TYPES = ["Film", "Anime", "K-Drama", "Multfilm", "Serial", "Hujjatli"] as const;
 export type MovieType = (typeof MOVIE_TYPES)[number];
 
@@ -15,7 +14,8 @@ function serverClient() {
     global: {
       fetch: (input, init) => {
         const h = new Headers(init?.headers);
-        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization");
+        if (key.startsWith("sb_") && h.get("Authorization") === `Bearer ${key}`)
+          h.delete("Authorization");
         h.set("apikey", key);
         return fetch(input, { ...init, headers: h });
       },
@@ -117,7 +117,11 @@ export const getMovie = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ id: z.string() }).parse(input))
   .handler(async ({ data }): Promise<MovieDTO | null> => {
     const sb = serverClient();
-    const { data: row, error } = await sb.from("movies").select("*").eq("id", data.id).maybeSingle();
+    const { data: row, error } = await sb
+      .from("movies")
+      .select("*")
+      .eq("id", data.id)
+      .maybeSingle();
     if (error) throw new Error(error.message);
     return row ? rowToDto(row) : null;
   });
@@ -138,14 +142,11 @@ export const listGenres = createServerFn({ method: "GET" }).handler(async (): Pr
 export const listGenreRows = createServerFn({ method: "GET" }).handler(
   async (): Promise<GenreDTO[]> => {
     const sb = serverClient();
-    const { data, error } = await (sb.from("genres") as any)
-      .select("id, name, slug")
-      .order("name");
+    const { data, error } = await (sb.from("genres") as any).select("id, name, slug").order("name");
     if (error) throw new Error(error.message);
     return (data ?? []) as GenreDTO[];
   },
 );
-
 
 const movieFields = {
   title: z.string().min(1).max(200),
@@ -238,7 +239,6 @@ export const deleteGenre = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
-
 
 export const listComments = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ movie_id: z.string() }).parse(input))

@@ -23,7 +23,9 @@ export function StarRating({ movieId }: { movieId: string }) {
           >
             <Star
               className={`h-5 w-5 ${
-                n <= active ? "fill-[var(--color-gold)] text-[var(--color-gold)]" : "text-muted-foreground"
+                n <= active
+                  ? "fill-[var(--color-gold)] text-[var(--color-gold)]"
+                  : "text-muted-foreground"
               }`}
             />
           </button>

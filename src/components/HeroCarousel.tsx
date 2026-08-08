@@ -3,7 +3,6 @@ import { Link } from "@tanstack/react-router";
 import type { MovieDTO } from "@/lib/movies.functions";
 import { SafeImage } from "@/components/SafeImage";
 
-
 export function HeroCarousel({ movies }: { movies: MovieDTO[] }) {
   const slides = movies.slice(0, 5);
   const [i, setI] = useState(0);
@@ -32,7 +31,9 @@ export function HeroCarousel({ movies }: { movies: MovieDTO[] }) {
         <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
       </div>
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
-        <p className="text-xs font-semibold uppercase tracking-widest text-primary">Bugungi tavsiya</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+          Bugungi tavsiya
+        </p>
         <h1 className="mt-3 max-w-2xl text-5xl leading-none sm:text-7xl">{m.title}</h1>
         <p className="mt-4 max-w-xl text-sm text-muted-foreground sm:text-base line-clamp-3">
           {m.description}
@@ -58,7 +59,9 @@ export function HeroCarousel({ movies }: { movies: MovieDTO[] }) {
               aria-label={`Slide ${idx + 1}`}
               onClick={() => setI(idx)}
               className={`h-1.5 rounded-full transition-all ${
-                idx === i ? "w-8 bg-primary" : "w-4 bg-muted-foreground/40 hover:bg-muted-foreground/70"
+                idx === i
+                  ? "w-8 bg-primary"
+                  : "w-4 bg-muted-foreground/40 hover:bg-muted-foreground/70"
               }`}
             />
           ))}

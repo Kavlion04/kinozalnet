@@ -8,7 +8,13 @@ import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { MovieRow } from "@/components/MovieRow";
-import { listMovies, listGenres, listMoviesByIds, MOVIE_TYPES, type MovieDTO } from "@/lib/movies.functions";
+import {
+  listMovies,
+  listGenres,
+  listMoviesByIds,
+  MOVIE_TYPES,
+  type MovieDTO,
+} from "@/lib/movies.functions";
 import { useWatchProgress, useRecent } from "@/lib/watch-progress";
 
 const searchSchema = z.object({
@@ -51,9 +57,17 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Kinozal — Kinolar, Anime, K-Drama va Multfilmlar" },
-      { name: "description", content: "Kinolarni qidiring, tur va janr bo'yicha filtrlang, to'liq video tomosha qiling, izoh yozing va sevimlilarga saqlang." },
+      {
+        name: "description",
+        content:
+          "Kinolarni qidiring, tur va janr bo'yicha filtrlang, to'liq video tomosha qiling, izoh yozing va sevimlilarga saqlang.",
+      },
       { property: "og:title", content: "Kinozal — Kinolar, Anime, K-Drama va Multfilmlar" },
-      { property: "og:description", content: "Kinolarni qidiring, tur va janr bo'yicha filtrlang, to'liq video tomosha qiling va sevimlilarga saqlang." },
+      {
+        property: "og:description",
+        content:
+          "Kinolarni qidiring, tur va janr bo'yicha filtrlang, to'liq video tomosha qiling va sevimlilarga saqlang.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -119,7 +133,9 @@ function Home() {
               >
                 <option value="">Barcha janr</option>
                 {genres.map((g) => (
-                  <option key={g} value={g}>{g}</option>
+                  <option key={g} value={g}>
+                    {g}
+                  </option>
                 ))}
               </select>
               <select
@@ -129,7 +145,9 @@ function Home() {
               >
                 <option value="">Yil</option>
                 {years.map((y) => (
-                  <option key={y} value={y}>{y}</option>
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
                 ))}
               </select>
               <select

@@ -64,11 +64,14 @@ function ResetPasswordPage() {
 
         {!ready ? (
           <p className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground">
-            Havola tekshirilmoqda... Agar bu yerda qolib qolsa, emaildagi tiklash havolasini yana bir
-            marta bosing.
+            Havola tekshirilmoqda... Agar bu yerda qolib qolsa, emaildagi tiklash havolasini yana
+            bir marta bosing.
           </p>
         ) : (
-          <form onSubmit={submit} className="space-y-3 rounded-2xl border border-border bg-card p-4">
+          <form
+            onSubmit={submit}
+            className="space-y-3 rounded-2xl border border-border bg-card p-4"
+          >
             <input
               type="password"
               required

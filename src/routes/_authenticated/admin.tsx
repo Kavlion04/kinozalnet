@@ -82,8 +82,7 @@ function AdminPage() {
     onSuccess: refresh,
   });
   const reportMutation = useMutation({
-    mutationFn: (v: { report_id: string; status: "reviewed" | "dismissed" }) =>
-      setRep({ data: v }),
+    mutationFn: (v: { report_id: string; status: "reviewed" | "dismissed" }) => setRep({ data: v }),
     onSuccess: refresh,
   });
   const deleteMutation = useMutation({
@@ -187,144 +186,145 @@ function AdminPage() {
 
         {section === "reports" && (
           <>
-        <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { label: "Yangi shikoyat", value: statData?.open ?? 0, icon: Flag },
-            { label: "Ko'rib chiqilgan", value: statData?.reviewed ?? 0, icon: Check },
-            { label: "Tekshirilmoqda", value: statData?.pending ?? 0, icon: Clock },
-            { label: "Yashirilgan", value: statData?.hidden ?? 0, icon: EyeOff },
-          ].map((s) => (
-            <div key={s.label} className="rounded-xl border border-border bg-card p-4">
-              <s.icon className="h-4 w-4 text-muted-foreground" />
-              <p className="mt-2 text-2xl font-semibold">{s.value}</p>
-              <p className="text-xs text-muted-foreground">{s.label}</p>
+            <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                { label: "Yangi shikoyat", value: statData?.open ?? 0, icon: Flag },
+                { label: "Ko'rib chiqilgan", value: statData?.reviewed ?? 0, icon: Check },
+                { label: "Tekshirilmoqda", value: statData?.pending ?? 0, icon: Clock },
+                { label: "Yashirilgan", value: statData?.hidden ?? 0, icon: EyeOff },
+              ].map((s) => (
+                <div key={s.label} className="rounded-xl border border-border bg-card p-4">
+                  <s.icon className="h-4 w-4 text-muted-foreground" />
+                  <p className="mt-2 text-2xl font-semibold">{s.value}</p>
+                  <p className="text-xs text-muted-foreground">{s.label}</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
 
-        <div className="mb-4 flex gap-2">
-          {(["open", "reviewed", "all"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`rounded-lg px-3 py-2 text-sm ${
-                tab === t
-                  ? "bg-primary text-primary-foreground"
-                  : "border border-border bg-secondary text-muted-foreground hover:bg-accent"
-              }`}
-            >
-              {t === "open" ? "Yangi" : t === "reviewed" ? "Ko'rilgan" : "Hammasi"}
-            </button>
-          ))}
-        </div>
+            <div className="mb-4 flex gap-2">
+              {(["open", "reviewed", "all"] as const).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setTab(t)}
+                  className={`rounded-lg px-3 py-2 text-sm ${
+                    tab === t
+                      ? "bg-primary text-primary-foreground"
+                      : "border border-border bg-secondary text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  {t === "open" ? "Yangi" : t === "reviewed" ? "Ko'rilgan" : "Hammasi"}
+                </button>
+              ))}
+            </div>
 
-        {isLoading ? (
-          <p className="text-muted-foreground">Yuklanmoqda...</p>
+            {isLoading ? (
+              <p className="text-muted-foreground">Yuklanmoqda...</p>
+            ) : list.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
+                Shikoyatlar yo'q.
+              </div>
+            ) : (
+              <ul className="space-y-3">
+                {list.map((r) => (
+                  <li key={r.id} className="rounded-xl border border-border bg-card p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-md bg-destructive/15 px-2 py-1 text-xs font-medium text-destructive">
+                        {r.reason}
+                      </span>
+                      {r.comment && (
+                        <span
+                          className={`rounded-md px-2 py-1 text-xs font-medium ${STATUS_STYLES[r.comment.status]}`}
+                        >
+                          {STATUS_LABELS[r.comment.status]}
+                        </span>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        {r.comment?.report_count ?? 0} shikoyat
+                      </span>
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {new Date(r.created_at).toLocaleString()}
+                      </span>
+                    </div>
 
-        ) : list.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
-            Shikoyatlar yo'q.
-          </div>
-        ) : (
-          <ul className="space-y-3">
-            {list.map((r) => (
-              <li key={r.id} className="rounded-xl border border-border bg-card p-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="rounded-md bg-destructive/15 px-2 py-1 text-xs font-medium text-destructive">
-                    {r.reason}
-                  </span>
-                  {r.comment && (
-                    <span
-                      className={`rounded-md px-2 py-1 text-xs font-medium ${STATUS_STYLES[r.comment.status]}`}
-                    >
-                      {STATUS_LABELS[r.comment.status]}
-                    </span>
-                  )}
-                  <span className="text-xs text-muted-foreground">
-                    {r.comment?.report_count ?? 0} shikoyat
-                  </span>
-                  <span className="ml-auto text-xs text-muted-foreground">
-                    {new Date(r.created_at).toLocaleString()}
-                  </span>
-                </div>
-
-                {r.details && (
-                  <p className="mt-2 text-xs italic text-muted-foreground">"{r.details}"</p>
-                )}
-
-                <div className="mt-3 rounded-lg border border-border/60 bg-background p-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold">{r.comment?.nickname}</p>
-                    {r.comment && (
-                      <Link
-                        to="/movie/$id"
-                        params={{ id: r.comment.movie_id }}
-                        className="text-xs text-primary underline"
-                      >
-                        {r.movie_title ?? "Kino"}
-                      </Link>
+                    {r.details && (
+                      <p className="mt-2 text-xs italic text-muted-foreground">"{r.details}"</p>
                     )}
-                  </div>
-                  <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-                    {r.comment?.body}
-                  </p>
-                </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {r.comment && r.comment.status !== "hidden" && (
-                    <button
-                      onClick={() =>
-                        statusMutation.mutate({ comment_id: r.comment!.id, status: "hidden" })
-                      }
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10"
-                    >
-                      <EyeOff className="h-3.5 w-3.5" /> Yashirish
-                    </button>
-                  )}
-                  {r.comment && r.comment.status !== "visible" && (
-                    <button
-                      onClick={() =>
-                        statusMutation.mutate({ comment_id: r.comment!.id, status: "visible" })
-                      }
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-accent"
-                    >
-                      <Eye className="h-3.5 w-3.5" /> Tiklash
-                    </button>
-                  )}
-                  {r.status === "open" && (
-                    <>
-                      <button
-                        onClick={() => reportMutation.mutate({ report_id: r.id, status: "reviewed" })}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
-                      >
-                        <Check className="h-3.5 w-3.5" /> Ko'rib chiqildi
-                      </button>
-                      <button
-                        onClick={() =>
-                          reportMutation.mutate({ report_id: r.id, status: "dismissed" })
-                        }
-                        className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-accent"
-                      >
-                        Rad etish
-                      </button>
-                    </>
-                  )}
-                  {r.comment && (
-                    <button
-                      onClick={() => {
-                        if (confirm("Izoh butunlay o'chirilsinmi?"))
-                          deleteMutation.mutate({ comment_id: r.comment!.id });
-                      }}
-                      className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" /> O'chirish
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+                    <div className="mt-3 rounded-lg border border-border/60 bg-background p-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold">{r.comment?.nickname}</p>
+                        {r.comment && (
+                          <Link
+                            to="/movie/$id"
+                            params={{ id: r.comment.movie_id }}
+                            className="text-xs text-primary underline"
+                          >
+                            {r.movie_title ?? "Kino"}
+                          </Link>
+                        )}
+                      </div>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                        {r.comment?.body}
+                      </p>
+                    </div>
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {r.comment && r.comment.status !== "hidden" && (
+                        <button
+                          onClick={() =>
+                            statusMutation.mutate({ comment_id: r.comment!.id, status: "hidden" })
+                          }
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10"
+                        >
+                          <EyeOff className="h-3.5 w-3.5" /> Yashirish
+                        </button>
+                      )}
+                      {r.comment && r.comment.status !== "visible" && (
+                        <button
+                          onClick={() =>
+                            statusMutation.mutate({ comment_id: r.comment!.id, status: "visible" })
+                          }
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-accent"
+                        >
+                          <Eye className="h-3.5 w-3.5" /> Tiklash
+                        </button>
+                      )}
+                      {r.status === "open" && (
+                        <>
+                          <button
+                            onClick={() =>
+                              reportMutation.mutate({ report_id: r.id, status: "reviewed" })
+                            }
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90"
+                          >
+                            <Check className="h-3.5 w-3.5" /> Ko'rib chiqildi
+                          </button>
+                          <button
+                            onClick={() =>
+                              reportMutation.mutate({ report_id: r.id, status: "dismissed" })
+                            }
+                            className="rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-accent"
+                          >
+                            Rad etish
+                          </button>
+                        </>
+                      )}
+                      {r.comment && (
+                        <button
+                          onClick={() => {
+                            if (confirm("Izoh butunlay o'chirilsinmi?"))
+                              deleteMutation.mutate({ comment_id: r.comment!.id });
+                          }}
+                          className="ml-auto inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" /> O'chirish
+                        </button>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </>
         )}
       </div>

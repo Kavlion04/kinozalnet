@@ -9,9 +9,7 @@ export const MEDIA_BUCKET = "media";
  * Absolute http(s) links are returned as-is; bucket paths are signed.
  */
 export const getMediaUrl = createServerFn({ method: "GET" })
-  .inputValidator((input: unknown) =>
-    z.object({ path: z.string().min(1).max(500) }).parse(input),
-  )
+  .inputValidator((input: unknown) => z.object({ path: z.string().min(1).max(500) }).parse(input))
   .handler(async ({ data }): Promise<{ url: string | null }> => {
     const raw = data.path.trim();
     if (/^https?:\/\//i.test(raw)) return { url: raw };

@@ -45,7 +45,6 @@ function SearchPage() {
   const set = (patch: Partial<SearchState>) =>
     navigate({ search: (prev: SearchState) => ({ ...prev, ...patch }), replace: true });
 
-
   const { data: genres = [] } = useQuery({
     queryKey: ["genres"],
     queryFn: () => listGenres({}) as Promise<string[]>,
@@ -85,7 +84,12 @@ function SearchPage() {
             Hammasi
           </button>
           {MOVIE_TYPES.map((t) => (
-            <button key={t} type="button" onClick={() => set({ type: t })} className={chip(type === t)}>
+            <button
+              key={t}
+              type="button"
+              onClick={() => set({ type: t })}
+              className={chip(type === t)}
+            >
               {t}
             </button>
           ))}

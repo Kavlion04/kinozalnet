@@ -151,7 +151,8 @@ export function YouTubePlayer({ videoId, title, storageId }: Props) {
       {showResume && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-secondary/60 px-4 py-3 text-sm">
           <span className="text-muted-foreground">
-            Oxirgi tomosha qilingan joy: <span className="text-foreground font-medium">{fmt(savedTime)}</span>
+            Oxirgi tomosha qilingan joy:{" "}
+            <span className="text-foreground font-medium">{fmt(savedTime)}</span>
           </span>
           <div className="flex gap-2">
             <button

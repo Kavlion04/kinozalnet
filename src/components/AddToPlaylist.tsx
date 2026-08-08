@@ -31,7 +31,9 @@ export function AddToPlaylist({ movieId }: { movieId: string }) {
             <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">To'plamlar</p>
             <ul className="max-h-56 space-y-1 overflow-y-auto">
               {lists.length === 0 && (
-                <li className="rounded-md px-2 py-2 text-xs text-muted-foreground">Hali to'plam yo'q</li>
+                <li className="rounded-md px-2 py-2 text-xs text-muted-foreground">
+                  Hali to'plam yo'q
+                </li>
               )}
               {lists.map((p) => {
                 const inList = p.movieIds.includes(movieId);
