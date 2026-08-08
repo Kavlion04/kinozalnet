@@ -44,7 +44,13 @@ export function useFavorites() {
         const missing = local.filter((id) => !remote.includes(id));
         if (merged.length !== local.length) write(merged);
         for (const id of missing) {
-          await toggleFavorite({ data: { movie_id: id, on: true } }).catch(() => {});
+          const res = await toggleFavorite({ data: { movie_id: id, on: true } }).catch(
+            () => ({ ok: true, missing: true }) as { ok: true; missing?: true },
+          );
+          if (res?.missing) {
+            // Movie no longer exists — drop it from the local list.
+            write(read().filter((x) => x !== id));
+          }
         }
       } catch {
         /* offline or not signed in */
