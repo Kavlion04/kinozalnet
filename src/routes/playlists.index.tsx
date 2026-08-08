@@ -4,7 +4,7 @@ import { ListMusic, Plus, Trash2, ChevronRight } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { usePlaylists } from "@/lib/playlists";
 
-export const Route = createFileRoute("/playlists")({
+export const Route = createFileRoute("/playlists/")({
   head: () => ({
     meta: [
       { title: "To'plamlar — Kinozal" },
