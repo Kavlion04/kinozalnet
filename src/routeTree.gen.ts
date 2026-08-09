@@ -22,6 +22,7 @@ import { Route as PlaylistsIdRouteImport } from './routes/playlists.$id'
 import { Route as MovieIdRouteImport } from './routes/movie.$id'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -87,6 +88,12 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiPublicTelegramWebhookRoute =
+  ApiPublicTelegramWebhookRouteImport.update({
+    id: '/api/public/telegram/webhook',
+    path: '/api/public/telegram/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -101,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/movie/$id': typeof MovieIdRoute
   '/playlists/$id': typeof PlaylistsIdRoute
   '/playlists/': typeof PlaylistsIndexRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -115,6 +123,7 @@ export interface FileRoutesByTo {
   '/movie/$id': typeof MovieIdRoute
   '/playlists/$id': typeof PlaylistsIdRoute
   '/playlists': typeof PlaylistsIndexRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -131,6 +140,7 @@ export interface FileRoutesById {
   '/movie/$id': typeof MovieIdRoute
   '/playlists/$id': typeof PlaylistsIdRoute
   '/playlists/': typeof PlaylistsIndexRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -147,6 +157,7 @@ export interface FileRouteTypes {
     | '/movie/$id'
     | '/playlists/$id'
     | '/playlists/'
+    | '/api/public/telegram/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -161,6 +172,7 @@ export interface FileRouteTypes {
     | '/movie/$id'
     | '/playlists/$id'
     | '/playlists'
+    | '/api/public/telegram/webhook'
   id:
     | '__root__'
     | '/'
@@ -176,6 +188,7 @@ export interface FileRouteTypes {
     | '/movie/$id'
     | '/playlists/$id'
     | '/playlists/'
+    | '/api/public/telegram/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -190,6 +203,7 @@ export interface RootRouteChildren {
   MovieIdRoute: typeof MovieIdRoute
   PlaylistsIdRoute: typeof PlaylistsIdRoute
   PlaylistsIndexRoute: typeof PlaylistsIndexRoute
+  ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -285,6 +299,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/telegram/webhook': {
+      id: '/api/public/telegram/webhook'
+      path: '/api/public/telegram/webhook'
+      fullPath: '/api/public/telegram/webhook'
+      preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -313,17 +334,8 @@ const rootRouteChildren: RootRouteChildren = {
   MovieIdRoute: MovieIdRoute,
   PlaylistsIdRoute: PlaylistsIdRoute,
   PlaylistsIndexRoute: PlaylistsIndexRoute,
+  ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
