@@ -8,13 +8,18 @@ export function HeroCarousel({ movies }: { movies: MovieDTO[] }) {
   const [i, setI] = useState(0);
 
   useEffect(() => {
+    setI(0);
+  }, [slides.length]);
+
+  useEffect(() => {
     if (slides.length <= 1) return;
     const t = setInterval(() => setI((v) => (v + 1) % slides.length), 6000);
     return () => clearInterval(t);
   }, [slides.length]);
 
   if (slides.length === 0) return null;
-  const m = slides[i];
+  const m = slides[Math.min(i, slides.length - 1)];
+  if (!m) return null;
 
   return (
     <section className="relative overflow-hidden">
