@@ -9,30 +9,27 @@ export function StarRating({ movieId }: { movieId: string }) {
 
   return (
     <div className="mt-6 rounded-2xl border border-border bg-secondary/40 p-4 sm:p-5">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+        <div className="min-w-0">
           <p className="text-sm font-semibold">Sizning bahoyingiz</p>
           <p className="text-xs text-muted-foreground">
-            {value ? "Bahoni o'zgartirish uchun yulduzni bosing" : "10 ballik tizimda baholang"}
+            {value
+              ? "Ballni o'zgartirish uchun chiziqni bosing"
+              : "10 ballik tizimda baholang"}
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="rounded-full bg-background px-3 py-1 text-sm font-semibold tabular-nums">
-            {active ? `${active}/10` : "—"}
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="flex items-baseline gap-1 rounded-xl bg-background px-3 py-1.5 tabular-nums">
+            <Star className="h-4 w-4 self-center fill-[var(--color-gold)] text-[var(--color-gold)]" />
+            <span className="text-lg font-bold">{active || "—"}</span>
+            <span className="text-xs text-muted-foreground">/10</span>
           </span>
-          {value > 0 && (
-            <button
-              onClick={() => set(0)}
-              className="text-xs text-muted-foreground underline transition-colors hover:text-foreground"
-            >
-              tozalash
-            </button>
-          )}
         </div>
       </div>
 
+      {/* Segmented 10-point bar — compact, never wraps */}
       <div
-        className="mt-3 flex flex-wrap items-center gap-0.5"
+        className="mt-4 flex items-stretch gap-1"
         onMouseLeave={() => setHover(0)}
       >
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
@@ -41,19 +38,28 @@ export function StarRating({ movieId }: { movieId: string }) {
             type="button"
             onMouseEnter={() => setHover(n)}
             onClick={() => set(value === n ? 0 : n)}
-            className="rounded-md p-1 transition-transform hover:scale-125"
-            aria-label={`${n} yulduz`}
+            aria-label={`${n} ball`}
+            className="group flex-1 py-2"
           >
-            <Star
-              className={`h-6 w-6 transition-colors ${
+            <span
+              className={`block h-2.5 rounded-full transition-all group-hover:h-3.5 ${
                 n <= active
-                  ? "fill-[var(--color-gold)] text-[var(--color-gold)]"
-                  : "text-muted-foreground/50"
+                  ? "bg-[var(--color-gold)]"
+                  : "bg-muted-foreground/25"
               }`}
             />
           </button>
         ))}
       </div>
+
+      {value > 0 && (
+        <button
+          onClick={() => set(0)}
+          className="mt-1 text-xs text-muted-foreground underline transition-colors hover:text-foreground"
+        >
+          Bahoni tozalash
+        </button>
+      )}
     </div>
   );
 }
