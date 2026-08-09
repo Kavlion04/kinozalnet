@@ -98,18 +98,6 @@ function Home() {
 
       <HeroCarousel movies={heroPool} />
 
-      <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6">
-        <div className="flex flex-wrap gap-2">
-          <TypeChip active={search.type === ""} onClick={() => update({ type: "" })}>
-            Barchasi
-          </TypeChip>
-          {MOVIE_TYPES.map((t) => (
-            <TypeChip key={t} active={search.type === t} onClick={() => update({ type: t })}>
-              {t}
-            </TypeChip>
-          ))}
-        </div>
-      </section>
 
       <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
