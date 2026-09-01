@@ -83,7 +83,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
-  const { data: movies } = useSuspenseQuery(moviesQO(search));
+  const { data: movies, refetch } = useSuspenseQuery(moviesQO(search));
   const { data: genres } = useSuspenseQuery(genresQO);
 
   const years = Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i);
