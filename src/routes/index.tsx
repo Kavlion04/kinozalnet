@@ -3,11 +3,14 @@ import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { MovieRow } from "@/components/MovieRow";
+import { SearchAutosuggest } from "@/components/SearchAutosuggest";
+import { EmptyState } from "@/components/EmptyState";
+import { useFavorites } from "@/lib/favorites";
 import {
   listMovies,
   listGenres,
