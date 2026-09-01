@@ -126,9 +126,14 @@ function SearchPage() {
         </p>
 
         {results.length === 0 && !isFetching ? (
-          <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
-            Hech narsa topilmadi. Boshqa so'z bilan urinib ko'ring.
-          </div>
+          <EmptyState
+            title={q ? `"${q}" bo'yicha natija yo'q` : "Natija topilmadi"}
+            description="Imloni tekshirib ko'ring, qisqaroq so'z yozing yoki quyidagi janrlardan birini tanlang."
+            onReset={() => set({ q: "", type: "", genre: "", sort: "rating" })}
+            onRetry={() => refetch()}
+            suggestions={genres.slice(0, 6)}
+            onSuggestion={(g) => set({ q: "", genre: g })}
+          />
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-6">
             {results.map((m) => (
