@@ -50,7 +50,7 @@ function SearchPage() {
     queryKey: ["genres"],
     queryFn: () => listGenres({}) as Promise<string[]>,
   });
-  const { data: results = [], isFetching } = useQuery({
+  const { data: results = [], isFetching, refetch } = useQuery({
     queryKey: ["movies", { q, type, genre, sort }],
     queryFn: () => listMovies({ data: { q, type, genre, sort } }) as Promise<MovieDTO[]>,
   });
