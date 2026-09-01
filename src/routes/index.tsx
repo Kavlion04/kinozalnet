@@ -102,16 +102,11 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="Kino nomini qidiring..."
-                defaultValue={search.q}
-                onChange={(e) => update({ q: e.target.value })}
-                className="w-full rounded-lg border border-input bg-background py-2.5 pl-10 pr-3 text-sm outline-none focus:border-primary"
-              />
-            </div>
+            <SearchAutosuggest
+              value={search.q}
+              onChange={(v) => update({ q: v })}
+              className="flex-1"
+            />
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
               <select
