@@ -3,11 +3,14 @@ import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { MovieRow } from "@/components/MovieRow";
+import { SearchAutosuggest } from "@/components/SearchAutosuggest";
+import { EmptyState } from "@/components/EmptyState";
+import { useFavorites } from "@/lib/favorites";
 import {
   listMovies,
   listGenres,
@@ -80,7 +83,7 @@ export const Route = createFileRoute("/")({
 function Home() {
   const search = Route.useSearch();
   const navigate = useNavigate({ from: "/" });
-  const { data: movies } = useSuspenseQuery(moviesQO(search));
+  const { data: movies, refetch } = useSuspenseQuery(moviesQO(search));
   const { data: genres } = useSuspenseQuery(genresQO);
 
   const years = Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i);
@@ -102,16 +105,11 @@ function Home() {
       <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="Kino nomini qidiring..."
-                defaultValue={search.q}
-                onChange={(e) => update({ q: e.target.value })}
-                className="w-full rounded-lg border border-input bg-background py-2.5 pl-10 pr-3 text-sm outline-none focus:border-primary"
-              />
-            </div>
+            <SearchAutosuggest
+              value={search.q}
+              onChange={(v) => update({ q: v })}
+              className="flex-1"
+            />
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
               <select
@@ -159,9 +157,14 @@ function Home() {
             <span className="text-sm text-muted-foreground">{movies.length} ta</span>
           </div>
           {movies.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
-              Bu filtr bo'yicha kino topilmadi.
-            </div>
+            <EmptyState
+              title="Bu filtr bo'yicha kino topilmadi"
+              description="Nomni qisqartirib yozing yoki janr/yil filtrlarini tozalab ko'ring."
+              onReset={() => update({ q: "", genre: "", type: "", year: 0 })}
+              onRetry={() => refetch()}
+              suggestions={genres.slice(0, 6)}
+              onSuggestion={(g) => update({ q: "", genre: g, year: 0 })}
+            />
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-6">
               {movies.map((m) => (
@@ -185,12 +188,13 @@ function Home() {
 function PersonalRows() {
   const progress = useWatchProgress();
   const recent = useRecent();
+  const { ids: favIds } = useFavorites();
 
   const progressIds = progress.map((p) => p.movieId);
   const idSet = new Set(progressIds);
   const recentOnly = recent.filter((id) => !idSet.has(id));
 
-  const allIds = Array.from(new Set([...progressIds, ...recentOnly])).slice(0, 40);
+  const allIds = Array.from(new Set([...favIds, ...progressIds, ...recentOnly])).slice(0, 40);
 
   const { data } = useQuery({
     queryKey: ["by-ids", allIds],
@@ -201,11 +205,16 @@ function PersonalRows() {
   if (!data || data.length === 0) return null;
   const map = new Map(data.map((m) => [m.id, m]));
 
-  const continueMovies = progressIds.map((id) => map.get(id)).filter(Boolean) as MovieDTO[];
-  const recentMovies = recentOnly.map((id) => map.get(id)).filter(Boolean) as MovieDTO[];
+  const pick = (list: string[]) => list.map((id) => map.get(id)).filter(Boolean) as MovieDTO[];
+  const favMovies = pick(favIds);
+  const continueMovies = pick(progressIds);
+  const recentMovies = pick(recentOnly);
 
   return (
     <>
+      {favMovies.length > 0 && (
+        <MovieRow title="Sevimlilar" movies={favMovies} viewAllTo="/favorites" />
+      )}
       {continueMovies.length > 0 && <MovieRow title="Davom eting" movies={continueMovies} />}
       {recentMovies.length > 0 && <MovieRow title="Yaqinda ko'rilgan" movies={recentMovies} />}
     </>

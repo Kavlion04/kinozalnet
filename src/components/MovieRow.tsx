@@ -1,9 +1,18 @@
 import { useRef } from "react";
+import { Link } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { MovieCard } from "./MovieCard";
 import type { MovieDTO } from "@/lib/movies.functions";
 
-export function MovieRow({ title, movies }: { title: string; movies: MovieDTO[] }) {
+export function MovieRow({
+  title,
+  movies,
+  viewAllTo,
+}: {
+  title: string;
+  movies: MovieDTO[];
+  viewAllTo?: "/favorites";
+}) {
   const ref = useRef<HTMLDivElement>(null);
   if (movies.length === 0) return null;
 
@@ -16,7 +25,14 @@ export function MovieRow({ title, movies }: { title: string; movies: MovieDTO[] 
   return (
     <section className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-2xl">{title}</h2>
+        <div className="flex items-baseline gap-3">
+          <h2 className="text-2xl">{title}</h2>
+          {viewAllTo && (
+            <Link to={viewAllTo} className="text-xs font-medium text-primary hover:underline">
+              Barchasi
+            </Link>
+          )}
+        </div>
         <div className="hidden gap-2 sm:flex">
           <button
             type="button"

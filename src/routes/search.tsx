@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Search as SearchIcon } from "lucide-react";
 import { z } from "zod";
 import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
+import { SearchAutosuggest } from "@/components/SearchAutosuggest";
+import { EmptyState } from "@/components/EmptyState";
 import { MOVIE_TYPES, listGenres, listMovies, type MovieDTO } from "@/lib/movies.functions";
 
 const searchSchema = z.object({
@@ -49,7 +50,7 @@ function SearchPage() {
     queryKey: ["genres"],
     queryFn: () => listGenres({}) as Promise<string[]>,
   });
-  const { data: results = [], isFetching } = useQuery({
+  const { data: results = [], isFetching, refetch } = useQuery({
     queryKey: ["movies", { q, type, genre, sort }],
     queryFn: () => listMovies({ data: { q, type, genre, sort } }) as Promise<MovieDTO[]>,
   });
@@ -67,17 +68,14 @@ function SearchPage() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <h1 className="mb-5 text-3xl">Qidirish</h1>
 
-        <div className="relative mb-4">
-          <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            autoFocus
-            value={q}
-            onChange={(e) => set({ q: e.target.value })}
-            placeholder="Kino nomini yozing..."
-            aria-label="Kino qidirish"
-            className="w-full rounded-xl border border-input bg-card py-3 pl-11 pr-4 text-sm outline-none focus:border-primary"
-          />
-        </div>
+        <SearchAutosuggest
+          autoFocus
+          value={q}
+          onChange={(v) => set({ q: v })}
+          placeholder="Kino nomini yozing..."
+          className="mb-4"
+        />
+
 
         <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
           <button type="button" onClick={() => set({ type: "" })} className={chip(!type)}>
@@ -128,9 +126,14 @@ function SearchPage() {
         </p>
 
         {results.length === 0 && !isFetching ? (
-          <div className="rounded-2xl border border-dashed border-border p-12 text-center text-muted-foreground">
-            Hech narsa topilmadi. Boshqa so'z bilan urinib ko'ring.
-          </div>
+          <EmptyState
+            title={q ? `"${q}" bo'yicha natija yo'q` : "Natija topilmadi"}
+            description="Imloni tekshirib ko'ring, qisqaroq so'z yozing yoki quyidagi janrlardan birini tanlang."
+            onReset={() => set({ q: "", type: "", genre: "", sort: "rating" })}
+            onRetry={() => refetch()}
+            suggestions={genres.slice(0, 6)}
+            onSuggestion={(g) => set({ q: "", genre: g })}
+          />
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-6">
             {results.map((m) => (
