@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Search as SearchIcon } from "lucide-react";
 import { z } from "zod";
 import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
+import { SearchAutosuggest } from "@/components/SearchAutosuggest";
+import { EmptyState } from "@/components/EmptyState";
 import { MOVIE_TYPES, listGenres, listMovies, type MovieDTO } from "@/lib/movies.functions";
 
 const searchSchema = z.object({
