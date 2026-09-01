@@ -157,9 +157,14 @@ function Home() {
             <span className="text-sm text-muted-foreground">{movies.length} ta</span>
           </div>
           {movies.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-border p-12 text-center text-muted-foreground">
-              Bu filtr bo'yicha kino topilmadi.
-            </div>
+            <EmptyState
+              title="Bu filtr bo'yicha kino topilmadi"
+              description="Nomni qisqartirib yozing yoki janr/yil filtrlarini tozalab ko'ring."
+              onReset={() => update({ q: "", genre: "", type: "", year: 0 })}
+              onRetry={() => refetch()}
+              suggestions={genres.slice(0, 6)}
+              onSuggestion={(g) => update({ q: "", genre: g, year: 0 })}
+            />
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 lg:gap-6">
               {movies.map((m) => (
