@@ -188,12 +188,13 @@ function Home() {
 function PersonalRows() {
   const progress = useWatchProgress();
   const recent = useRecent();
+  const { ids: favIds } = useFavorites();
 
   const progressIds = progress.map((p) => p.movieId);
   const idSet = new Set(progressIds);
   const recentOnly = recent.filter((id) => !idSet.has(id));
 
-  const allIds = Array.from(new Set([...progressIds, ...recentOnly])).slice(0, 40);
+  const allIds = Array.from(new Set([...favIds, ...progressIds, ...recentOnly])).slice(0, 40);
 
   const { data } = useQuery({
     queryKey: ["by-ids", allIds],
@@ -204,11 +205,16 @@ function PersonalRows() {
   if (!data || data.length === 0) return null;
   const map = new Map(data.map((m) => [m.id, m]));
 
-  const continueMovies = progressIds.map((id) => map.get(id)).filter(Boolean) as MovieDTO[];
-  const recentMovies = recentOnly.map((id) => map.get(id)).filter(Boolean) as MovieDTO[];
+  const pick = (list: string[]) => list.map((id) => map.get(id)).filter(Boolean) as MovieDTO[];
+  const favMovies = pick(favIds);
+  const continueMovies = pick(progressIds);
+  const recentMovies = pick(recentOnly);
 
   return (
     <>
+      {favMovies.length > 0 && (
+        <MovieRow title="Sevimlilar" movies={favMovies} viewAllTo="/favorites" />
+      )}
       {continueMovies.length > 0 && <MovieRow title="Davom eting" movies={continueMovies} />}
       {recentMovies.length > 0 && <MovieRow title="Yaqinda ko'rilgan" movies={recentMovies} />}
     </>
