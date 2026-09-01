@@ -23,7 +23,7 @@ export const Route = createFileRoute("/favorites")({
 
 function FavoritesPage() {
   const { ids } = useFavorites();
-  const { data: all = [] } = useQuery({
+  const { data: all = [], refetch } = useQuery({
     queryKey: ["movies", { q: "", genre: "", sort: "rating" }],
     queryFn: () => listMovies({ data: {} }) as Promise<MovieDTO[]>,
   });
