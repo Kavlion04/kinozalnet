@@ -68,17 +68,14 @@ function SearchPage() {
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
         <h1 className="mb-5 text-3xl">Qidirish</h1>
 
-        <div className="relative mb-4">
-          <SearchIcon className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            autoFocus
-            value={q}
-            onChange={(e) => set({ q: e.target.value })}
-            placeholder="Kino nomini yozing..."
-            aria-label="Kino qidirish"
-            className="w-full rounded-xl border border-input bg-card py-3 pl-11 pr-4 text-sm outline-none focus:border-primary"
-          />
-        </div>
+        <SearchAutosuggest
+          autoFocus
+          value={q}
+          onChange={(v) => set({ q: v })}
+          placeholder="Kino nomini yozing..."
+          className="mb-4"
+        />
+
 
         <div className="mb-3 flex gap-2 overflow-x-auto pb-1">
           <button type="button" onClick={() => set({ type: "" })} className={chip(!type)}>
