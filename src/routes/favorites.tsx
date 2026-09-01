@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
+import { EmptyState } from "@/components/EmptyState";
 import { listMovies, type MovieDTO } from "@/lib/movies.functions";
 import { useFavorites } from "@/lib/favorites";
 
