@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { PlayerExtras } from "@/components/PlayerExtras";
 
 declare global {
   interface Window {
@@ -35,6 +36,7 @@ type Props = {
 
 export function YouTubePlayer({ videoId, title, storageId }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const boxRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<any>(null);
   const savedTimeRef = useRef<number>(0);
   const intervalRef = useRef<number | null>(null);
@@ -157,11 +159,27 @@ export function YouTubePlayer({ videoId, title, storageId }: Props) {
     return h > 0 ? `${h}:${pad(mm)}:${pad(ss)}` : `${mm}:${pad(ss)}`;
   };
 
+  const jumpTo = (secs: number) => {
+    try {
+      playerRef.current?.seekTo?.(Math.max(0, secs), true);
+      playerRef.current?.playVideo?.();
+      setShowResume(false);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const goFullscreen = () => {
+    const el = boxRef.current;
+    if (el?.requestFullscreen) void el.requestFullscreen();
+  };
+
   return (
     <div className="space-y-3">
-      <div className="relative aspect-video overflow-hidden rounded-2xl bg-black shadow-[var(--shadow-poster)]">
+      <div ref={boxRef} className="relative aspect-video overflow-hidden rounded-2xl bg-black shadow-[var(--shadow-poster)]">
         <div ref={containerRef} title={title} className="absolute inset-0 h-full w-full" />
       </div>
+      <PlayerExtras onSeek={jumpTo} onFullscreen={goFullscreen} />
       {showResume && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-secondary/60 px-4 py-3 text-sm">
           <span className="text-muted-foreground">

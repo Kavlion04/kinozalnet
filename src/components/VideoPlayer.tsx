@@ -13,6 +13,7 @@ import {
 import { getMediaUrl } from "@/lib/media.functions";
 import { saveProgress } from "@/lib/user-data.functions";
 import { useAuth } from "@/hooks/useAuth";
+import { PlayerExtras } from "@/components/PlayerExtras";
 
 const fmt = (s: number) => {
   if (!Number.isFinite(s)) return "0:00";
@@ -43,6 +44,7 @@ export function VideoPlayer({
   const key = `video-progress:${movieId}`;
   const { user } = useAuth();
   const ref = useRef<HTMLVideoElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
   const [time, setTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -129,8 +131,25 @@ export function VideoPlayer({
     );
   }
 
+  const jumpTo = (secs: number) => {
+    const el = ref.current;
+    if (!el) return;
+    el.currentTime = Math.max(0, el.duration ? Math.min(el.duration, secs) : secs);
+    void el.play();
+  };
+  const goFullscreen = () => {
+    const box = wrapRef.current as (HTMLDivElement & { requestFullscreen?: () => Promise<void> }) | null;
+    const vid = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+    if (box?.requestFullscreen) void box.requestFullscreen();
+    else vid?.webkitEnterFullscreen?.();
+  };
+
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border bg-black shadow-[var(--shadow-poster)]">
+    <div>
+      <div
+        ref={wrapRef}
+        className="group relative overflow-hidden rounded-2xl border border-border bg-black shadow-[var(--shadow-poster)]"
+      >
       <video
         ref={ref}
         src={video?.url ?? undefined}
@@ -281,7 +300,7 @@ export function VideoPlayer({
             </select>
             <button
               type="button"
-              onClick={() => void ref.current?.requestFullscreen?.()}
+              onClick={goFullscreen}
               aria-label="To'liq ekran"
               className="rounded p-2 hover:bg-white/10"
             >
@@ -290,6 +309,8 @@ export function VideoPlayer({
           </div>
         </div>
       </div>
+    </div>
+      <PlayerExtras onSeek={jumpTo} onFullscreen={goFullscreen} />
     </div>
   );
 }
