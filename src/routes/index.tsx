@@ -215,27 +215,3 @@ function PersonalRows() {
     </>
   );
 }
-
-function TypeChip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`rounded-full border px-4 py-1.5 text-sm transition ${
-        active
-          ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-card text-foreground hover:bg-accent"
-      }`}
-    >
-      {children}
-    </button>
-  );
-}
