@@ -5,6 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { MovieCard } from "@/components/MovieCard";
 import { SearchAutosuggest } from "@/components/SearchAutosuggest";
 import { EmptyState } from "@/components/EmptyState";
+import { AppSelect } from "@/components/AppSelect";
 import { MOVIE_TYPES, listGenres, listMovies, type MovieDTO } from "@/lib/movies.functions";
 
 const searchSchema = z.object({
@@ -94,31 +95,21 @@ function SearchPage() {
         </div>
 
         <div className="mb-6 flex flex-wrap gap-2">
-          <select
+          <AppSelect
             value={genre}
-            onChange={(e) => set({ genre: e.target.value })}
-            aria-label="Janr"
-            className="rounded-lg border border-input bg-card px-3 py-2 text-sm"
-          >
-            <option value="">Barcha janrlar</option>
-            {genres.map((g) => (
-              <option key={g} value={g}>
-                {g}
-              </option>
-            ))}
-          </select>
-          <select
+            onChange={(v) => set({ genre: v })}
+            allLabel="Barcha janrlar"
+            ariaLabel="Janr"
+            options={genres.map((g) => ({ value: g, label: g }))}
+            className="w-full sm:w-48"
+          />
+          <AppSelect
             value={sort}
-            onChange={(e) => set({ sort: e.target.value })}
-            aria-label="Tartiblash"
-            className="rounded-lg border border-input bg-card px-3 py-2 text-sm"
-          >
-            {SORTS.map((s) => (
-              <option key={s.v} value={s.v}>
-                {s.l}
-              </option>
-            ))}
-          </select>
+            onChange={(v) => set({ sort: v })}
+            ariaLabel="Tartiblash"
+            options={SORTS.map((s) => ({ value: s.v, label: s.l }))}
+            className="w-full sm:w-48"
+          />
         </div>
 
         <p className="mb-4 text-sm text-muted-foreground">
