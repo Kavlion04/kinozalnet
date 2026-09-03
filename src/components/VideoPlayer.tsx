@@ -138,13 +138,18 @@ export function VideoPlayer({
     void el.play();
   };
   const goFullscreen = () => {
-    const el = wrapRef.current ?? ref.current;
-    void (el as any)?.requestFullscreen?.() ?? (ref.current as any)?.webkitEnterFullscreen?.();
+    const box = wrapRef.current as (HTMLDivElement & { requestFullscreen?: () => Promise<void> }) | null;
+    const vid = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
+    if (box?.requestFullscreen) void box.requestFullscreen();
+    else vid?.webkitEnterFullscreen?.();
   };
 
   return (
     <div>
-    <div ref={wrapRef} className="group relative overflow-hidden rounded-2xl border border-border bg-black shadow-[var(--shadow-poster)]">
+      <div
+        ref={wrapRef}
+        className="group relative overflow-hidden rounded-2xl border border-border bg-black shadow-[var(--shadow-poster)]"
+      >
       <video
         ref={ref}
         src={video?.url ?? undefined}
