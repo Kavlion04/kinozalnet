@@ -9,6 +9,7 @@ import { MovieCard } from "@/components/MovieCard";
 import { HeroCarousel } from "@/components/HeroCarousel";
 import { MovieRow } from "@/components/MovieRow";
 import { SearchAutosuggest } from "@/components/SearchAutosuggest";
+import { AppSelect } from "@/components/AppSelect";
 import { EmptyState } from "@/components/EmptyState";
 import { useFavorites } from "@/lib/favorites";
 import {
@@ -112,39 +113,33 @@ function Home() {
             />
             <div className="flex flex-wrap items-center gap-2 text-sm">
               <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-              <select
+              <AppSelect
                 value={search.genre}
-                onChange={(e) => update({ genre: e.target.value })}
-                className="rounded-lg border border-input bg-background px-3 py-2.5 outline-none focus:border-primary"
-              >
-                <option value="">Barcha janr</option>
-                {genres.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
-              <select
-                value={search.year || ""}
-                onChange={(e) => update({ year: e.target.value ? Number(e.target.value) : 0 })}
-                className="rounded-lg border border-input bg-background px-3 py-2.5 outline-none focus:border-primary"
-              >
-                <option value="">Yil</option>
-                {years.map((y) => (
-                  <option key={y} value={y}>
-                    {y}
-                  </option>
-                ))}
-              </select>
-              <select
+                onChange={(v) => update({ genre: v })}
+                allLabel="Barcha janr"
+                ariaLabel="Janr"
+                options={genres.map((g) => ({ value: g, label: g }))}
+                className="w-36"
+              />
+              <AppSelect
+                value={search.year ? String(search.year) : ""}
+                onChange={(v) => update({ year: v ? Number(v) : 0 })}
+                allLabel="Yil"
+                ariaLabel="Yil"
+                options={years.map((y) => ({ value: String(y), label: String(y) }))}
+                className="w-28"
+              />
+              <AppSelect
                 value={search.sort}
-                onChange={(e) => update({ sort: e.target.value })}
-                className="rounded-lg border border-input bg-background px-3 py-2.5 outline-none focus:border-primary"
-              >
-                <option value="rating">Reyting</option>
-                <option value="year">Yangi</option>
-                <option value="title">A-Z</option>
-              </select>
+                onChange={(v) => update({ sort: v })}
+                ariaLabel="Saralash"
+                options={[
+                  { value: "rating", label: "Reyting" },
+                  { value: "year", label: "Yangi" },
+                  { value: "title", label: "A-Z" },
+                ]}
+                className="w-32"
+              />
             </div>
           </div>
         </div>
