@@ -6,6 +6,7 @@ import { ShieldCheck, Eye, EyeOff, Check, Trash2, LogOut, Clock, Flag } from "lu
 import { Navbar } from "@/components/Navbar";
 import { AdminMovies } from "@/components/admin/AdminMovies";
 import { AdminGenres } from "@/components/admin/AdminGenres";
+import { AdminUsers } from "@/components/admin/AdminUsers";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listReports,
@@ -184,6 +185,7 @@ function AdminPage() {
 
         {section === "movies" && <AdminMovies />}
         {section === "genres" && <AdminGenres />}
+        {section === "users" && <AdminUsers />}
 
         {section === "reports" && (
           <>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Pencil, Plus, Trash2, Upload, X } from "lucide-react";
+import { Pencil, Plus, Search, Trash2, Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SafeImage } from "@/components/SafeImage";
 import {
@@ -86,6 +86,7 @@ export function AdminMovies() {
   const [form, setForm] = useState<FormState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  const [q, setQ] = useState("");
 
   const { data: movies = [] } = useQuery({
     queryKey: ["movies", { admin: true }],
@@ -152,10 +153,28 @@ export function AdminMovies() {
       "w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary",
   });
 
+  const term = q.trim().toLowerCase();
+  const shown = term
+    ? movies.filter((m) =>
+        [m.title, m.original_title ?? "", m.type, String(m.year ?? "")].some((v) =>
+          v.toLowerCase().includes(term),
+        ),
+      )
+    : movies;
+
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">{movies.length} ta kino</p>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div className="relative min-w-[200px] flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Kino qidirish..."
+            className="w-full rounded-lg border border-input bg-background py-2 pl-9 pr-3 text-sm outline-none focus:border-primary"
+          />
+        </div>
+        <p className="text-sm text-muted-foreground">{shown.length} / {movies.length} ta kino</p>
         <button
           type="button"
           onClick={() => setForm({ ...empty })}
@@ -265,7 +284,7 @@ export function AdminMovies() {
       )}
 
       <ul className="space-y-2">
-        {movies.map((m) => (
+        {shown.map((m) => (
           <li
             key={m.id}
             className="grid grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-border bg-card p-3"
