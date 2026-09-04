@@ -165,6 +165,7 @@ function AdminPage() {
               ["reports", "Shikoyatlar"],
               ["movies", "Kinolar"],
               ["genres", "Janrlar"],
+              ["users", "Foydalanuvchilar"],
             ] as const
           ).map(([k, label]) => (
             <button
