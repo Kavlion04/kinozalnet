@@ -226,3 +226,69 @@ export const deleteComment = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export type AdminUserDTO = {
+  id: string;
+  display_name: string | null;
+  created_at: string;
+  roles: string[];
+};
+
+/** List profiles with their roles (admins only). */
+export const listUsers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<AdminUserDTO[]> => {
+    await assertAdmin(context as any);
+    const sb = context.supabase as any;
+    const { data: profiles, error } = await sb
+      .from("profiles")
+      .select("id, display_name, created_at")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) throw new Error(error.message);
+    const { data: roles } = await sb.from("user_roles").select("user_id, role");
+    const byUser = new Map<string, string[]>();
+    (roles ?? []).forEach((r: any) => {
+      byUser.set(r.user_id, [...(byUser.get(r.user_id) ?? []), r.role]);
+    });
+    return (profiles ?? []).map((p: any) => ({
+      id: p.id,
+      display_name: p.display_name,
+      created_at: p.created_at,
+      roles: byUser.get(p.id) ?? [],
+    }));
+  });
+
+/** Grant or revoke a role for a user (admins only). */
+export const setUserRole = createServerFn({ method: "POST" })
+  .validator((input: unknown) =>
+    z
+      .object({
+        user_id: z.string().uuid(),
+        role: z.enum(["admin", "moderator", "user"]),
+        grant: z.boolean(),
+      })
+      .parse(input),
+  )
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertAdmin(context as any);
+    const sb = context.supabase as any;
+    if (data.user_id === context.userId && data.role === "admin" && !data.grant) {
+      throw new Error("O'zingizdan admin huquqini olib tashlay olmaysiz");
+    }
+    if (data.grant) {
+      const { error } = await sb
+        .from("user_roles")
+        .upsert({ user_id: data.user_id, role: data.role }, { onConflict: "user_id,role" });
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await sb
+        .from("user_roles")
+        .delete()
+        .eq("user_id", data.user_id)
+        .eq("role", data.role);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
