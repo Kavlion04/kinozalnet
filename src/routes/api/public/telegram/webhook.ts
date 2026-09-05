@@ -57,6 +57,31 @@ async function sendMessage(chatId: number, text: string, keyboard?: InlineKeyboa
   }
 }
 
+async function tg(method: string, payload: unknown) {
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const tgKey = process.env["TELEGRAM_API_KEY"];
+  if (!lovableKey || !tgKey) throw new Error("Telegram credentials are not configured");
+  const res = await fetch(`https://connector-gateway.lovable.dev/telegram/${method}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${lovableKey}`,
+      "X-Connection-Api-Key": tgKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) console.error(`Telegram ${method} failed [${res.status}]: ${await res.text()}`);
+}
+
+async function searchMovies(q: string) {
+  const sb = publicClient();
+  return await sb
+    .from("movies")
+    .select("id, title, year, type, rating, poster_url")
+    .ilike("title", `%${q}%`)
+    .limit(10);
+}
+
 export const Route = createFileRoute("/api/public/telegram/webhook")({
   server: {
     handlers: {
