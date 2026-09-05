@@ -209,8 +209,9 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
           return `🎬 <b>${m.title}</b>${meta ? `\n${meta}` : ""}`;
         });
 
-        const keyboard: InlineKeyboard = data.map((m: any) => [
-          { text: `▶️ ${String(m.title).slice(0, 40)}`, url: `${SITE_URL}/movie/${m.id}` },
+        const keyboard: InlineKeyboard = data.flatMap((m: any) => [
+          [{ text: `▶️ ${String(m.title).slice(0, 30)}`, url: `${SITE_URL}/movie/${m.id}` }],
+          [{ text: `➕ To'plamga qo'sh`, url: `${SITE_URL}/movie/${m.id}?add=1` }],
         ]);
 
         await sendMessage(
