@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ListPlus, Check, Plus, X } from "lucide-react";
 import { usePlaylists } from "@/lib/playlists";
 
@@ -6,6 +6,13 @@ export function AddToPlaylist({ movieId }: { movieId: string }) {
   const { lists, create, toggleMovie } = usePlaylists();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
+
+  // Telegram bot "To'plamga qo'sh" tugmasi: /movie/<id>?add=1 bilan kelganda darhol ochiladi.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (new URLSearchParams(window.location.search).get("add") === "1") setOpen(true);
+  }, []);
+
 
   const handleCreate = () => {
     const n = name.trim();
