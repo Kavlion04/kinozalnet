@@ -183,12 +183,9 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
         }
 
         const q = text.replace(/^\/search\s*/i, "").slice(0, 80);
-        const sb = publicClient();
-        const { data, error } = await sb
-          .from("movies")
-          .select("id, title, year, type, rating")
-          .ilike("title", `%${q}%`)
-          .limit(6);
+        const { data: found, error } = await searchMovies(q);
+        const data = (found ?? []).slice(0, 5);
+
 
         if (error) {
           console.error(`Movie search failed: ${error.message}`);
