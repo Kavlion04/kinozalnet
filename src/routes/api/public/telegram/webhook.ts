@@ -57,6 +57,31 @@ async function sendMessage(chatId: number, text: string, keyboard?: InlineKeyboa
   }
 }
 
+async function tg(method: string, payload: unknown) {
+  const lovableKey = process.env["LOVABLE_API_KEY"];
+  const tgKey = process.env["TELEGRAM_API_KEY"];
+  if (!lovableKey || !tgKey) throw new Error("Telegram credentials are not configured");
+  const res = await fetch(`https://connector-gateway.lovable.dev/telegram/${method}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${lovableKey}`,
+      "X-Connection-Api-Key": tgKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) console.error(`Telegram ${method} failed [${res.status}]: ${await res.text()}`);
+}
+
+async function searchMovies(q: string) {
+  const sb = publicClient();
+  return await sb
+    .from("movies")
+    .select("id, title, year, type, rating, poster_url")
+    .ilike("title", `%${q}%`)
+    .limit(10);
+}
+
 export const Route = createFileRoute("/api/public/telegram/webhook")({
   server: {
     handlers: {
@@ -70,6 +95,50 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
         }
 
         const update = await request.json();
+
+        // Inline rejim: @KinozalX_bot <nom> — yozgan sari natijalar yangilanadi
+        if (update.inline_query) {
+          const iq = update.inline_query;
+          const iquery = String(iq.query ?? "").trim().slice(0, 80);
+          let results: any[] = [];
+          if (iquery.length >= 2) {
+            const { data } = await searchMovies(iquery);
+            results = (data ?? []).map((m: any) => {
+              const meta = [m.year, m.type, m.rating ? `⭐ ${m.rating}` : null]
+                .filter(Boolean)
+                .join(" · ");
+              return {
+                type: "article",
+                id: String(m.id),
+                title: m.title,
+                description: meta,
+                thumbnail_url: m.poster_url ?? undefined,
+                input_message_content: {
+                  message_text: `🎬 <b>${m.title}</b>${meta ? `\n${meta}` : ""}`,
+                  parse_mode: "HTML",
+                },
+                reply_markup: {
+                  inline_keyboard: [
+                    [{ text: "▶️ Tomosha qilish", url: `${SITE_URL}/movie/${m.id}` }],
+                    [{ text: "➕ To'plamga qo'sh", url: `${SITE_URL}/movie/${m.id}?add=1` }],
+                  ],
+                },
+              };
+            });
+          }
+          await tg("answerInlineQuery", {
+            inline_query_id: iq.id,
+            results,
+            cache_time: 10,
+            is_personal: true,
+            button:
+              iquery.length < 2
+                ? { text: "Kino nomini yozing…", start_parameter: "help" }
+                : undefined,
+          });
+          return Response.json({ ok: true });
+        }
+
         const message = update.message ?? update.edited_message;
         const chatId = message?.chat?.id;
         const text: string = (message?.text ?? "").trim();
@@ -114,12 +183,9 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
         }
 
         const q = text.replace(/^\/search\s*/i, "").slice(0, 80);
-        const sb = publicClient();
-        const { data, error } = await sb
-          .from("movies")
-          .select("id, title, year, type, rating")
-          .ilike("title", `%${q}%`)
-          .limit(6);
+        const { data: found, error } = await searchMovies(q);
+        const data = (found ?? []).slice(0, 5);
+
 
         if (error) {
           console.error(`Movie search failed: ${error.message}`);
@@ -143,8 +209,9 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
           return `🎬 <b>${m.title}</b>${meta ? `\n${meta}` : ""}`;
         });
 
-        const keyboard: InlineKeyboard = data.map((m: any) => [
-          { text: `▶️ ${String(m.title).slice(0, 40)}`, url: `${SITE_URL}/movie/${m.id}` },
+        const keyboard: InlineKeyboard = data.flatMap((m: any) => [
+          [{ text: `▶️ ${String(m.title).slice(0, 30)}`, url: `${SITE_URL}/movie/${m.id}` }],
+          [{ text: `➕ To'plamga qo'sh`, url: `${SITE_URL}/movie/${m.id}?add=1` }],
         ]);
 
         await sendMessage(
