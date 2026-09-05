@@ -95,6 +95,50 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
         }
 
         const update = await request.json();
+
+        // Inline rejim: @KinozalX_bot <nom> — yozgan sari natijalar yangilanadi
+        if (update.inline_query) {
+          const iq = update.inline_query;
+          const iquery = String(iq.query ?? "").trim().slice(0, 80);
+          let results: any[] = [];
+          if (iquery.length >= 2) {
+            const { data } = await searchMovies(iquery);
+            results = (data ?? []).map((m: any) => {
+              const meta = [m.year, m.type, m.rating ? `⭐ ${m.rating}` : null]
+                .filter(Boolean)
+                .join(" · ");
+              return {
+                type: "article",
+                id: String(m.id),
+                title: m.title,
+                description: meta,
+                thumbnail_url: m.poster_url ?? undefined,
+                input_message_content: {
+                  message_text: `🎬 <b>${m.title}</b>${meta ? `\n${meta}` : ""}`,
+                  parse_mode: "HTML",
+                },
+                reply_markup: {
+                  inline_keyboard: [
+                    [{ text: "▶️ Tomosha qilish", url: `${SITE_URL}/movie/${m.id}` }],
+                    [{ text: "➕ To'plamga qo'sh", url: `${SITE_URL}/movie/${m.id}?add=1` }],
+                  ],
+                },
+              };
+            });
+          }
+          await tg("answerInlineQuery", {
+            inline_query_id: iq.id,
+            results,
+            cache_time: 10,
+            is_personal: true,
+            button:
+              iquery.length < 2
+                ? { text: "Kino nomini yozing…", start_parameter: "help" }
+                : undefined,
+          });
+          return Response.json({ ok: true });
+        }
+
         const message = update.message ?? update.edited_message;
         const chatId = message?.chat?.id;
         const text: string = (message?.text ?? "").trim();
