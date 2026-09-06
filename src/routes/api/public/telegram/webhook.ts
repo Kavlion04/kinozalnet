@@ -164,9 +164,7 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
             return Response.json({ ok: true });
           }
           const mm = m as any;
-          const meta = [mm.year, mm.type, mm.rating ? `⭐ ${mm.rating}` : null]
-            .filter(Boolean)
-            .join(" · ");
+          const meta = metaLine(mm);
           await sendMessage(
             chatId,
             `🎬 <b>${mm.title}</b>${meta ? `\n${meta}` : ""}${
@@ -180,8 +178,42 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
         if (!text || text === "/start" || text === "/help") {
           await sendMessage(
             chatId,
-            `🎬 <b>Kinozal botiga xush kelibsiz!</b>\n\nKino nomini yozing — men bazadan topib, to'g'ridan-to'g'ri tomosha qilish tugmasini yuboraman.\n\nMasalan: <code>Interstellar</code>`,
+            `🎬 <b>Kinozal botiga xush kelibsiz!</b>\n\nKino nomini yozing — men bazadan topib, to'g'ridan-to'g'ri tomosha qilish tugmasini yuboraman.\n\nMasalan: <code>Interstellar</code>\n\n📹 /filmlar — to'liq videosi bor kinolar ro'yxati`,
             [[{ text: "🍿 Kinozal saytiga o'tish", url: SITE_URL }]],
+          );
+          return Response.json({ ok: true });
+        }
+
+        // /filmlar — faqat to'liq videosi (yuklangan yoki YouTube) bor kinolar
+        if (/^\/(filmlar|videos)/i.test(text)) {
+          const sb = publicClient();
+          const { data: all, error: listErr } = await sb
+            .from("movies")
+            .select("id, title, year, type, rating, video_url, full_youtube_id")
+            .order("created_at", { ascending: false })
+            .limit(100);
+          if (listErr) {
+            console.error(`Movie list failed: ${listErr.message}`);
+            await sendMessage(chatId, "❌ Xatolik yuz berdi. Keyinroq urinib ko'ring.");
+            return Response.json({ ok: true });
+          }
+          const withVideo = (all ?? []).filter(hasVideo).slice(0, 8);
+          if (withVideo.length === 0) {
+            await sendMessage(chatId, "😕 Hozircha videosi bor kinolar yo'q.", [
+              [{ text: "🎬 Saytga o'tish", url: SITE_URL }],
+            ]);
+            return Response.json({ ok: true });
+          }
+          const vlines = withVideo.map(
+            (m: any) => `🎬 <b>${m.title}</b>\n${metaLine(m)}`,
+          );
+          const vkeyboard: InlineKeyboard = withVideo.map((m: any) => [
+            { text: `▶️ ${String(m.title).slice(0, 30)}`, url: `${SITE_URL}/movie/${m.id}` },
+          ]);
+          await sendMessage(
+            chatId,
+            `📹 <b>Videosi bor kinolar</b> (${withVideo.length} ta):\n\n${vlines.join("\n\n")}\n\nTomosha qilish uchun tugmani bosing 👇`,
+            vkeyboard,
           );
           return Response.json({ ok: true });
         }
@@ -207,9 +239,7 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
         }
 
         const lines = data.map((m: any) => {
-          const meta = [m.year, m.type, m.rating ? `⭐ ${m.rating}` : null]
-            .filter(Boolean)
-            .join(" · ");
+          const meta = metaLine(m);
           return `🎬 <b>${m.title}</b>${meta ? `\n${meta}` : ""}`;
         });
 
