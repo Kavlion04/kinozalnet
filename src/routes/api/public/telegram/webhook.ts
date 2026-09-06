@@ -77,10 +77,16 @@ async function searchMovies(q: string) {
   const sb = publicClient();
   return await sb
     .from("movies")
-    .select("id, title, year, type, rating, poster_url")
+    .select("id, title, year, type, rating, poster_url, video_url, full_youtube_id")
     .ilike("title", `%${q}%`)
     .limit(10);
 }
+
+const hasVideo = (m: any) => Boolean(m.video_url || m.full_youtube_id);
+const metaLine = (m: any) =>
+  [m.year, m.type, m.rating ? `⭐ ${m.rating}` : null, hasVideo(m) ? "📹 Video bor" : null]
+    .filter(Boolean)
+    .join(" · ");
 
 export const Route = createFileRoute("/api/public/telegram/webhook")({
   server: {
