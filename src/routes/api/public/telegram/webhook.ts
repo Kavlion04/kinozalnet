@@ -110,9 +110,7 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
           if (iquery.length >= 2) {
             const { data } = await searchMovies(iquery);
             results = (data ?? []).map((m: any) => {
-              const meta = [m.year, m.type, m.rating ? `⭐ ${m.rating}` : null]
-                .filter(Boolean)
-                .join(" · ");
+              const meta = metaLine(m);
               return {
                 type: "article",
                 id: String(m.id),
