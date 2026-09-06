@@ -78,6 +78,75 @@ const list = (s: string) =>
     .map((x) => x.trim())
     .filter(Boolean);
 
+function UploadZone({
+  label,
+  accept,
+  placeholder,
+  field: fieldProps,
+  value,
+  busy,
+  onFile,
+}: {
+  kind: "video" | "subtitles";
+  label: string;
+  accept: string;
+  placeholder: string;
+  field: {
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    className: string;
+  };
+  value: string;
+  busy: boolean;
+  onFile: (f: File) => void;
+}) {
+  const [drag, setDrag] = useState(false);
+  return (
+    <div>
+      <label className="mb-1.5 block text-xs text-muted-foreground">{label}</label>
+      <input placeholder={placeholder} {...fieldProps} />
+      <label
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDrag(true);
+        }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDrag(false);
+          const f = e.dataTransfer.files?.[0];
+          if (f) onFile(f);
+        }}
+        className={`mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-3 py-5 text-center text-xs transition ${
+          drag
+            ? "border-primary bg-primary/10"
+            : "border-border hover:border-primary/60 hover:bg-accent/50"
+        } ${busy ? "pointer-events-none opacity-60" : ""}`}
+      >
+        <Upload className={`h-5 w-5 ${drag ? "text-primary" : "text-muted-foreground"}`} />
+        <span className="font-medium">
+          {busy ? "Yuklanmoqda..." : "Faylni shu yerga tashlang yoki bosing"}
+        </span>
+        <input
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onFile(f);
+            e.target.value = "";
+          }}
+        />
+        {value.trim() && (
+          <span className="max-w-full truncate text-[11px] text-muted-foreground">
+            ✓ {value.trim()}
+          </span>
+        )}
+      </label>
+    </div>
+  );
+}
+
 export function AdminMovies() {
   const qc = useQueryClient();
   const create = useServerFn(addMovie);
@@ -227,44 +296,26 @@ export function AdminMovies() {
           <textarea rows={3} placeholder="Tavsif" {...field("description")} />
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-xs text-muted-foreground">
-                Video (fayl yuklash yoki havola)
-              </label>
-              <input placeholder="video/... yoki https://..." {...field("video_url")} />
-              <label className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-accent">
-                <Upload className="h-3.5 w-3.5" />
-                {busy === "video" ? "Yuklanmoqda..." : "Video yuklash"}
-                <input
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void upload(f, "video");
-                  }}
-                />
-              </label>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs text-muted-foreground">
-                Subtitr (.vtt) yoki havola
-              </label>
-              <input placeholder="subtitles/... yoki https://..." {...field("subtitles_url")} />
-              <label className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-accent">
-                <Upload className="h-3.5 w-3.5" />
-                {busy === "subtitles" ? "Yuklanmoqda..." : "Subtitr yuklash"}
-                <input
-                  type="file"
-                  accept=".vtt,text/vtt"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void upload(f, "subtitles");
-                  }}
-                />
-              </label>
-            </div>
+            <UploadZone
+              kind="video"
+              label="Video (fayl yuklash yoki havola)"
+              accept="video/*"
+              placeholder="video/... yoki https://..."
+              field={field("video_url")}
+              value={form.video_url}
+              busy={busy === "video"}
+              onFile={(f) => void upload(f, "video")}
+            />
+            <UploadZone
+              kind="subtitles"
+              label="Subtitr (.vtt) yoki havola"
+              accept=".vtt,text/vtt"
+              placeholder="subtitles/... yoki https://..."
+              field={field("subtitles_url")}
+              value={form.subtitles_url}
+              busy={busy === "subtitles"}
+              onFile={(f) => void upload(f, "subtitles")}
+            />
           </div>
 
           {error && (
