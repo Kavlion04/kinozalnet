@@ -227,44 +227,26 @@ export function AdminMovies() {
           <textarea rows={3} placeholder="Tavsif" {...field("description")} />
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-xs text-muted-foreground">
-                Video (fayl yuklash yoki havola)
-              </label>
-              <input placeholder="video/... yoki https://..." {...field("video_url")} />
-              <label className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-accent">
-                <Upload className="h-3.5 w-3.5" />
-                {busy === "video" ? "Yuklanmoqda..." : "Video yuklash"}
-                <input
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void upload(f, "video");
-                  }}
-                />
-              </label>
-            </div>
-            <div>
-              <label className="mb-1.5 block text-xs text-muted-foreground">
-                Subtitr (.vtt) yoki havola
-              </label>
-              <input placeholder="subtitles/... yoki https://..." {...field("subtitles_url")} />
-              <label className="mt-2 inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-accent">
-                <Upload className="h-3.5 w-3.5" />
-                {busy === "subtitles" ? "Yuklanmoqda..." : "Subtitr yuklash"}
-                <input
-                  type="file"
-                  accept=".vtt,text/vtt"
-                  className="hidden"
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) void upload(f, "subtitles");
-                  }}
-                />
-              </label>
-            </div>
+            <UploadZone
+              kind="video"
+              label="Video (fayl yuklash yoki havola)"
+              accept="video/*"
+              placeholder="video/... yoki https://..."
+              field={field("video_url")}
+              value={form.video_url}
+              busy={busy === "video"}
+              onFile={(f) => void upload(f, "video")}
+            />
+            <UploadZone
+              kind="subtitles"
+              label="Subtitr (.vtt) yoki havola"
+              accept=".vtt,text/vtt"
+              placeholder="subtitles/... yoki https://..."
+              field={field("subtitles_url")}
+              value={form.subtitles_url}
+              busy={busy === "subtitles"}
+              onFile={(f) => void upload(f, "subtitles")}
+            />
           </div>
 
           {error && (
