@@ -78,6 +78,75 @@ const list = (s: string) =>
     .map((x) => x.trim())
     .filter(Boolean);
 
+function UploadZone({
+  label,
+  accept,
+  placeholder,
+  field: fieldProps,
+  value,
+  busy,
+  onFile,
+}: {
+  kind: "video" | "subtitles";
+  label: string;
+  accept: string;
+  placeholder: string;
+  field: {
+    value: string;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    className: string;
+  };
+  value: string;
+  busy: boolean;
+  onFile: (f: File) => void;
+}) {
+  const [drag, setDrag] = useState(false);
+  return (
+    <div>
+      <label className="mb-1.5 block text-xs text-muted-foreground">{label}</label>
+      <input placeholder={placeholder} {...fieldProps} />
+      <label
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDrag(true);
+        }}
+        onDragLeave={() => setDrag(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDrag(false);
+          const f = e.dataTransfer.files?.[0];
+          if (f) onFile(f);
+        }}
+        className={`mt-2 flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed px-3 py-5 text-center text-xs transition ${
+          drag
+            ? "border-primary bg-primary/10"
+            : "border-border hover:border-primary/60 hover:bg-accent/50"
+        } ${busy ? "pointer-events-none opacity-60" : ""}`}
+      >
+        <Upload className={`h-5 w-5 ${drag ? "text-primary" : "text-muted-foreground"}`} />
+        <span className="font-medium">
+          {busy ? "Yuklanmoqda..." : "Faylni shu yerga tashlang yoki bosing"}
+        </span>
+        <input
+          type="file"
+          accept={accept}
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onFile(f);
+            e.target.value = "";
+          }}
+        />
+        {value.trim() && (
+          <span className="max-w-full truncate text-[11px] text-muted-foreground">
+            ✓ {value.trim()}
+          </span>
+        )}
+      </label>
+    </div>
+  );
+}
+
 export function AdminMovies() {
   const qc = useQueryClient();
   const create = useServerFn(addMovie);
