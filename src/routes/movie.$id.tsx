@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { ArrowLeft, Clock, Heart, Share2, Star } from "lucide-react";
+import { ArrowLeft, Clock, Heart, Send, Share2, Star } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { Comments } from "@/components/Comments";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
@@ -178,6 +178,16 @@ function MoviePage() {
                 >
                   <Share2 className="h-4 w-4" /> Ulashish
                 </button>
+                <a
+                  href={`https://t.me/share/url?url=${encodeURIComponent(
+                    `https://kinozalnet.lovable.app/movie/${movie.id}`,
+                  )}&text=${encodeURIComponent(`🎬 ${movie.title} — Kinozalda tomosha qiling`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-5 py-2.5 text-sm font-semibold hover:bg-accent"
+                >
+                  <Send className="h-4 w-4" /> Telegramga
+                </a>
                 <AddToPlaylist movieId={movie.id} />
               </div>
 

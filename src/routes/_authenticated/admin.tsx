@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { AdminMovies } from "@/components/admin/AdminMovies";
 import { AdminGenres } from "@/components/admin/AdminGenres";
 import { AdminUsers } from "@/components/admin/AdminUsers";
+import { AdminStats } from "@/components/admin/AdminStats";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listReports,
@@ -53,7 +54,9 @@ function AdminPage() {
   const setRep = useServerFn(setReportStatus);
   const delComment = useServerFn(deleteComment);
   const [tab, setTab] = useState<"open" | "reviewed" | "all">("open");
-  const [section, setSection] = useState<"reports" | "movies" | "genres" | "users">("reports");
+  const [section, setSection] = useState<"stats" | "reports" | "movies" | "genres" | "users">(
+    "stats",
+  );
 
   const { data: me, isLoading: meLoading } = useQuery({
     queryKey: ["admin-status"],
@@ -163,6 +166,7 @@ function AdminPage() {
         <div className="mb-6 flex gap-2 border-b border-border pb-2">
           {(
             [
+              ["stats", "Statistika"],
               ["reports", "Shikoyatlar"],
               ["movies", "Kinolar"],
               ["genres", "Janrlar"],
@@ -183,6 +187,7 @@ function AdminPage() {
           ))}
         </div>
 
+        {section === "stats" && <AdminStats />}
         {section === "movies" && <AdminMovies />}
         {section === "genres" && <AdminGenres />}
         {section === "users" && <AdminUsers />}
