@@ -178,14 +178,28 @@ async function ensureAdmin(context: { supabase: any; userId: string }) {
 export const addMovie = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((input: unknown) => z.object(movieFields).parse(input))
-  .handler(async ({ data, context }): Promise<{ id: string }> => {
+  .handler(async ({ data, context }): Promise<{ id: string; notified: number }> => {
     await ensureAdmin(context as any);
     const { data: row, error } = await (context.supabase.from("movies") as any)
       .insert(data)
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    return { id: row.id };
+
+    let notified = 0;
+    try {
+      const { notifyNewMovie } = await import("@/lib/telegram.server");
+      notified = await notifyNewMovie({
+        id: row.id,
+        title: data.title,
+        year: data.year ?? null,
+        type: data.type ?? "Film",
+        hasVideo: Boolean(data.video_url || data.full_youtube_id),
+      });
+    } catch (e) {
+      console.error("Telegram broadcast failed", e);
+    }
+    return { id: row.id, notified };
   });
 
 export const updateMovie = createServerFn({ method: "POST" })
