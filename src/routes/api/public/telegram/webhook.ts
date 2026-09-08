@@ -30,7 +30,7 @@ function publicClient() {
   });
 }
 
-type InlineKeyboard = { text: string; url: string }[][];
+type InlineKeyboard = { text: string; url?: string; callback_data?: string }[][];
 
 async function sendMessage(chatId: number, text: string, keyboard?: InlineKeyboard) {
   const lovableKey = process.env["LOVABLE_API_KEY"];
@@ -195,10 +195,60 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
           return Response.json({ ok: true });
         }
 
+        // Tugmalar: sahifalash va janrlar
+        if (update.callback_query) {
+          const cq = update.callback_query;
+          const cbChat = cq.message?.chat?.id;
+          const cbMsg = cq.message?.message_id;
+          const data = String(cq.data ?? "");
+          await tg("answerCallbackQuery", { callback_query_id: cq.id });
+          if (cbChat && cbMsg) {
+            if (data === "genres") {
+              await tg("editMessageText", {
+                chat_id: cbChat,
+                message_id: cbMsg,
+                text: "🏷 <b>Janrni tanlang</b>",
+                parse_mode: "HTML",
+                reply_markup: { inline_keyboard: await genresKeyboard() },
+              });
+            } else if (data.startsWith("br:")) {
+              const [, pageStr, ...rest] = data.split(":");
+              const page = Math.max(0, Number(pageStr) || 0);
+              const genre = rest.join(":");
+              const { rows, total } = await browsePage(page, genre);
+              const view = browseView(rows, total, page, genre);
+              await tg("editMessageText", {
+                chat_id: cbChat,
+                message_id: cbMsg,
+                text: view.text,
+                parse_mode: "HTML",
+                reply_markup: { inline_keyboard: view.keyboard },
+              });
+            }
+          }
+          return Response.json({ ok: true });
+        }
+
         const message = update.message ?? update.edited_message;
         const chatId = message?.chat?.id;
         const text: string = (message?.text ?? "").trim();
         if (!chatId) return Response.json({ ok: true, ignored: true });
+
+        // Obunachini saqlash — yangi kino qo'shilganda xabar yuborish uchun
+        try {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          await (supabaseAdmin.from("telegram_subscribers") as any).upsert(
+            {
+              chat_id: chatId,
+              first_name: message?.from?.first_name ?? null,
+              username: message?.from?.username ?? null,
+              active: true,
+            },
+            { onConflict: "chat_id" },
+          );
+        } catch (e) {
+          console.error("Subscriber upsert failed", e);
+        }
 
         // Deep link: /start movie_<uuid> -> send that movie card directly
         const deep = /^\/start\s+movie_([0-9a-f-]{36})$/i.exec(text);
@@ -230,8 +280,34 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
         if (!text || text === "/start" || text === "/help") {
           await sendMessage(
             chatId,
-            `🎬 <b>Kinozal botiga xush kelibsiz!</b>\n\nKino nomini yozing — men bazadan topib, to'g'ridan-to'g'ri tomosha qilish tugmasini yuboraman.\n\nMasalan: <code>Interstellar</code>\n\n📹 /filmlar — to'liq videosi bor kinolar ro'yxati`,
-            [[{ text: "🍿 Kinozal saytiga o'tish", url: SITE_URL }]],
+            `🎬 <b>Kinozal botiga xush kelibsiz!</b>\n\nKino nomini yozing — men bazadan topib, to'g'ridan-to'g'ri tomosha qilish tugmasini yuboraman.\n\nMasalan: <code>Interstellar</code>\n\n📹 /filmlar — videosi bor kinolar\n🎬 /kinolar — barcha kinolar (sahifalab)\n🏷 /janrlar — janr bo'yicha tanlash\n\n🔔 Yangi kino qo'shilsa, sizga xabar yuboraman.`,
+            [
+              [{ text: "🎬 Kinolarni ko'rish", callback_data: "br:0:" }],
+              [{ text: "🏷 Janrlar", callback_data: "genres" }],
+              [{ text: "🍿 Kinozal saytiga o'tish", url: SITE_URL }],
+            ],
+          );
+          return Response.json({ ok: true });
+        }
+
+        // /kinolar — barcha kinolar, sahifalab
+        if (/^\/(kinolar|barcha)/i.test(text)) {
+          const { rows, total, error: bErr } = await browsePage(0, "");
+          if (bErr) {
+            await sendMessage(chatId, "❌ Xatolik yuz berdi. Keyinroq urinib ko'ring.");
+            return Response.json({ ok: true });
+          }
+          const view = browseView(rows, total, 0, "");
+          await sendMessage(chatId, view.text, view.keyboard as InlineKeyboard);
+          return Response.json({ ok: true });
+        }
+
+        // /janrlar — janrlar ro'yxati
+        if (/^\/(janrlar|janr)/i.test(text)) {
+          await sendMessage(
+            chatId,
+            "🏷 <b>Janrni tanlang</b>",
+            (await genresKeyboard()) as InlineKeyboard,
           );
           return Response.json({ ok: true });
         }
