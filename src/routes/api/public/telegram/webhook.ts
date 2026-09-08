@@ -88,6 +88,58 @@ const metaLine = (m: any) =>
     .filter(Boolean)
     .join(" · ");
 
+const PAGE_SIZE = 6;
+
+/** Bir sahifa kinolar: janr bo'yicha (bo'sh bo'lsa hammasi), video borlari birinchi. */
+async function browsePage(page: number, genre: string) {
+  const sb = publicClient();
+  let q = sb
+    .from("movies")
+    .select("id, title, year, type, rating, video_url, full_youtube_id", { count: "exact" })
+    .order("created_at", { ascending: false })
+    .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
+  if (genre) q = q.contains("genre", [genre]);
+  const { data, count, error } = await q;
+  return { rows: (data ?? []) as any[], total: count ?? 0, error };
+}
+
+function browseView(rows: any[], total: number, page: number, genre: string) {
+  const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const head = genre ? `🏷 <b>${genre}</b>` : "🎬 <b>Barcha kinolar</b>";
+  const text =
+    rows.length === 0
+      ? `${head}\n\n😕 Bu bo'limda kino topilmadi.`
+      : `${head} — ${total} ta · sahifa ${page + 1}/${pages}\n\n${rows
+          .map((m) => `🎬 <b>${m.title}</b>\n${metaLine(m)}`)
+          .join("\n\n")}`;
+  const keyboard: any[][] = rows.map((m) => [
+    {
+      text: `${hasVideo(m) ? "▶️" : "🎬"} ${String(m.title).slice(0, 30)}`,
+      url: `${SITE_URL}/movie/${m.id}`,
+    },
+  ]);
+  const nav: any[] = [];
+  if (page > 0) nav.push({ text: "⬅️ Oldingi", callback_data: `br:${page - 1}:${genre}` });
+  if (page + 1 < pages) nav.push({ text: "Keyingi ➡️", callback_data: `br:${page + 1}:${genre}` });
+  if (nav.length) keyboard.push(nav);
+  keyboard.push([{ text: "🏷 Janrlar", callback_data: "genres" }]);
+  return { text, keyboard };
+}
+
+async function genresKeyboard() {
+  const sb = publicClient();
+  const { data } = await sb.from("genres").select("name").order("name").limit(40);
+  const names = (data ?? []).map((g: any) => String(g.name));
+  const rows: any[][] = [];
+  for (let i = 0; i < names.length; i += 2) {
+    rows.push(
+      names.slice(i, i + 2).map((n) => ({ text: n, callback_data: `br:0:${n.slice(0, 40)}` })),
+    );
+  }
+  rows.push([{ text: "🎬 Hammasi", callback_data: "br:0:" }]);
+  return rows;
+}
+
 export const Route = createFileRoute("/api/public/telegram/webhook")({
   server: {
     handlers: {
