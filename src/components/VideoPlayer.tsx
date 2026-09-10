@@ -217,7 +217,11 @@ export function VideoPlayer({
         </button>
       )}
 
-      <div className="space-y-2 bg-gradient-to-t from-black to-black/60 px-3 py-3 sm:px-4">
+      <div
+        className={`absolute inset-x-0 bottom-0 space-y-2 bg-gradient-to-t from-black via-black/80 to-transparent px-3 pb-3 pt-10 transition-opacity duration-300 sm:px-4 ${
+          controlsVisible || !playing ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      >
         <input
           type="range"
           min={0}
