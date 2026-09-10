@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { History, Trash2, User } from "lucide-react";
+import { History, LogOut, Trash2, User } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { SafeImage } from "@/components/SafeImage";
+import { useAuth } from "@/hooks/useAuth";
 import {
   clearMyHistory,
   getMyProfile,
@@ -34,11 +35,19 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
 
 function ProfilePage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const profileFn = useServerFn(getMyProfile);
   const saveFn = useServerFn(updateMyProfile);
   const favFn = useServerFn(listMyFavorites);
   const histFn = useServerFn(listMyHistory);
   const clearFn = useServerFn(clearMyHistory);
+
+  const handleSignOut = async () => {
+    await signOut();
+    await qc.resetQueries();
+    navigate({ to: "/" });
+  };
 
   const { data: profile } = useQuery({
     queryKey: ["my-profile"],
@@ -107,6 +116,13 @@ function ProfilePage() {
               </p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-secondary px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:border-destructive hover:text-destructive"
+          >
+            <LogOut className="h-4 w-4" /> Chiqish
+          </button>
         </div>
 
         <form
