@@ -19,7 +19,7 @@ const linkBase =
   "flex items-center gap-2 rounded-full px-3 py-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground";
 
 export function Navbar() {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -81,19 +81,7 @@ export function Navbar() {
           <span>Profil</span>
         </Link>
       )}
-      {user ? (
-        <button
-          type="button"
-          onClick={() => {
-            setOpen(false);
-            signOut();
-          }}
-          className={linkBase}
-        >
-          <LogOut className="h-4 w-4 shrink-0" />
-          <span>Chiqish</span>
-        </button>
-      ) : (
+      {!user && (
         <Link
           to="/auth"
           onClick={() => setOpen(false)}
