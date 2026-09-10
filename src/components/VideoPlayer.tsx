@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Maximize,
+  Minimize,
   Pause,
   Play,
   RotateCcw,
@@ -53,6 +54,7 @@ export function VideoPlayer({
   const [speed, setSpeed] = useState(1);
   const [subsOn, setSubsOn] = useState(false);
   const [resumeAt, setResumeAt] = useState<number | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(true);
   const hideTimer = useRef<number | null>(null);
 
@@ -66,7 +68,10 @@ export function VideoPlayer({
   }, []);
 
   useEffect(() => {
+    const onFs = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFs);
     return () => {
+      document.removeEventListener("fullscreenchange", onFs);
       if (hideTimer.current) window.clearTimeout(hideTimer.current);
     };
   }, []);
@@ -157,6 +162,10 @@ export function VideoPlayer({
   const goFullscreen = () => {
     const vid = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
     const box = wrapRef.current as (HTMLDivElement & { requestFullscreen?: () => Promise<void> }) | null;
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+      return;
+    }
     if (vid?.webkitEnterFullscreen && !document.fullscreenEnabled) {
       // iOS Safari: element fullscreen unsupported — native video fullscreen
       vid.webkitEnterFullscreen();
@@ -339,7 +348,7 @@ export function VideoPlayer({
               aria-label="To'liq ekran"
               className="rounded p-2 hover:bg-white/10"
             >
-              <Maximize className="h-4 w-4" />
+              {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
             </button>
           </div>
         </div>
