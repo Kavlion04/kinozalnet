@@ -4,7 +4,6 @@ import {
   Heart,
   ListMusic,
   LogIn,
-  LogOut,
   Menu,
   Plus,
   Search,
