@@ -155,10 +155,18 @@ export function VideoPlayer({
     void el.play();
   };
   const goFullscreen = () => {
-    const box = wrapRef.current as (HTMLDivElement & { requestFullscreen?: () => Promise<void> }) | null;
     const vid = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
-    if (box?.requestFullscreen) void box.requestFullscreen();
-    else vid?.webkitEnterFullscreen?.();
+    const box = wrapRef.current as (HTMLDivElement & { requestFullscreen?: () => Promise<void> }) | null;
+    if (vid?.webkitEnterFullscreen && !document.fullscreenEnabled) {
+      // iOS Safari: element fullscreen unsupported — native video fullscreen
+      vid.webkitEnterFullscreen();
+      return;
+    }
+    if (box?.requestFullscreen) {
+      box.requestFullscreen().catch(() => vid?.webkitEnterFullscreen?.());
+    } else {
+      vid?.webkitEnterFullscreen?.();
+    }
   };
 
   return (
