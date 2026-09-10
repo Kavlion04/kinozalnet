@@ -116,6 +116,13 @@ function ProfilePage() {
               </p>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-secondary px-4 py-2 text-sm font-semibold text-muted-foreground transition hover:border-destructive hover:text-destructive"
+          >
+            <LogOut className="h-4 w-4" /> Chiqish
+          </button>
         </div>
 
         <form
