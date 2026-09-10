@@ -53,6 +53,23 @@ export function VideoPlayer({
   const [speed, setSpeed] = useState(1);
   const [subsOn, setSubsOn] = useState(false);
   const [resumeAt, setResumeAt] = useState<number | null>(null);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const hideTimer = useRef<number | null>(null);
+
+  const pokeControls = useCallback(() => {
+    setControlsVisible(true);
+    if (hideTimer.current) window.clearTimeout(hideTimer.current);
+    hideTimer.current = window.setTimeout(() => {
+      const el = ref.current;
+      if (el && !el.paused) setControlsVisible(false);
+    }, 2500);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (hideTimer.current) window.clearTimeout(hideTimer.current);
+    };
+  }, []);
 
   const { data: video } = useQuery({
     queryKey: ["media", src],
@@ -138,17 +155,31 @@ export function VideoPlayer({
     void el.play();
   };
   const goFullscreen = () => {
-    const box = wrapRef.current as (HTMLDivElement & { requestFullscreen?: () => Promise<void> }) | null;
     const vid = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
-    if (box?.requestFullscreen) void box.requestFullscreen();
-    else vid?.webkitEnterFullscreen?.();
+    const box = wrapRef.current as (HTMLDivElement & { requestFullscreen?: () => Promise<void> }) | null;
+    if (vid?.webkitEnterFullscreen && !document.fullscreenEnabled) {
+      // iOS Safari: element fullscreen unsupported — native video fullscreen
+      vid.webkitEnterFullscreen();
+      return;
+    }
+    if (box?.requestFullscreen) {
+      box.requestFullscreen().catch(() => vid?.webkitEnterFullscreen?.());
+    } else {
+      vid?.webkitEnterFullscreen?.();
+    }
   };
 
   return (
     <div>
       <div
         ref={wrapRef}
-        className="group relative overflow-hidden rounded-2xl border border-border bg-black shadow-[var(--shadow-poster)]"
+        className={`group relative overflow-hidden rounded-2xl border border-border bg-black shadow-[var(--shadow-poster)] ${
+          controlsVisible ? "" : "cursor-none"
+        }`}
+        onMouseMove={pokeControls}
+        onTouchStart={pokeControls}
+        onMouseEnter={pokeControls}
+        onClick={pokeControls}
       >
       <video
         ref={ref}
@@ -186,7 +217,11 @@ export function VideoPlayer({
         </button>
       )}
 
-      <div className="space-y-2 bg-gradient-to-t from-black to-black/60 px-3 py-3 sm:px-4">
+      <div
+        className={`absolute inset-x-0 bottom-0 space-y-2 bg-gradient-to-t from-black via-black/80 to-transparent px-3 pb-3 pt-10 transition-opacity duration-300 sm:px-4 ${
+          controlsVisible || !playing ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      >
         <input
           type="range"
           min={0}
