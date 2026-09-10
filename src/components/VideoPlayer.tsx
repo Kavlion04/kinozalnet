@@ -173,7 +173,13 @@ export function VideoPlayer({
     <div>
       <div
         ref={wrapRef}
-        className="group relative overflow-hidden rounded-2xl border border-border bg-black shadow-[var(--shadow-poster)]"
+        className={`group relative overflow-hidden rounded-2xl border border-border bg-black shadow-[var(--shadow-poster)] ${
+          controlsVisible ? "" : "cursor-none"
+        }`}
+        onMouseMove={pokeControls}
+        onTouchStart={pokeControls}
+        onMouseEnter={pokeControls}
+        onClick={pokeControls}
       >
       <video
         ref={ref}
