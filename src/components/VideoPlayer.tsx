@@ -157,6 +157,10 @@ export function VideoPlayer({
   const goFullscreen = () => {
     const vid = ref.current as (HTMLVideoElement & { webkitEnterFullscreen?: () => void }) | null;
     const box = wrapRef.current as (HTMLDivElement & { requestFullscreen?: () => Promise<void> }) | null;
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+      return;
+    }
     if (vid?.webkitEnterFullscreen && !document.fullscreenEnabled) {
       // iOS Safari: element fullscreen unsupported — native video fullscreen
       vid.webkitEnterFullscreen();
