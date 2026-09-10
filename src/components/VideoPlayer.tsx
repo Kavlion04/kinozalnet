@@ -347,7 +347,7 @@ export function VideoPlayer({
               aria-label="To'liq ekran"
               className="rounded p-2 hover:bg-white/10"
             >
-              <Maximize className="h-4 w-4" />
+              {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
             </button>
           </div>
         </div>
