@@ -53,6 +53,23 @@ export function VideoPlayer({
   const [speed, setSpeed] = useState(1);
   const [subsOn, setSubsOn] = useState(false);
   const [resumeAt, setResumeAt] = useState<number | null>(null);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const hideTimer = useRef<number | null>(null);
+
+  const pokeControls = useCallback(() => {
+    setControlsVisible(true);
+    if (hideTimer.current) window.clearTimeout(hideTimer.current);
+    hideTimer.current = window.setTimeout(() => {
+      const el = ref.current;
+      if (el && !el.paused) setControlsVisible(false);
+    }, 2500);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (hideTimer.current) window.clearTimeout(hideTimer.current);
+    };
+  }, []);
 
   const { data: video } = useQuery({
     queryKey: ["media", src],
