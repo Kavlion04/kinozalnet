@@ -35,11 +35,19 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
 
 function ProfilePage() {
   const qc = useQueryClient();
+  const navigate = useNavigate();
+  const { signOut } = useAuth();
   const profileFn = useServerFn(getMyProfile);
   const saveFn = useServerFn(updateMyProfile);
   const favFn = useServerFn(listMyFavorites);
   const histFn = useServerFn(listMyHistory);
   const clearFn = useServerFn(clearMyHistory);
+
+  const handleSignOut = async () => {
+    await signOut();
+    await qc.resetQueries();
+    navigate({ to: "/" });
+  };
 
   const { data: profile } = useQuery({
     queryKey: ["my-profile"],
