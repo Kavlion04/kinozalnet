@@ -67,7 +67,10 @@ export function VideoPlayer({
   }, []);
 
   useEffect(() => {
+    const onFs = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFs);
     return () => {
+      document.removeEventListener("fullscreenchange", onFs);
       if (hideTimer.current) window.clearTimeout(hideTimer.current);
     };
   }, []);
